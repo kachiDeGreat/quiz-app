@@ -1,38 +1,252 @@
-.App {
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+body {
+  font-family: "Montserrat", serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh; /* Ensure the body takes at least the full viewport height */
+  position: relative; /* Required for absolute positioning of child elements */
+}
+
+.quiz-app {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%; /* Use percentage for responsive width */
   text-align: center;
+  overflow: hidden;
+
+  /* Absolute positioning to center the form */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.quiz-app h1 {
+  text-transform: uppercase;
+  font-size: 25px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.quiz-app p {
+  /* text-transform: uppercase; */
+  font-size: 12px;
+  text-align: left;
+  font-style: italic;
+  font-weight: normal;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.start-screen {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+}
+
+.start-screen input {
+  padding: 0.9rem;
+  font-size: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: "Montserrat", serif;
+}
+.start-screen input:focus {
+  outline: none;
+  /* border-color: #007bff; */
+}
+.start-screen button {
+  padding: 0.9rem 1.6rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  font-weight: bold;
+  font-family: "Montserrat", serif;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 40%;
+}
+
+.start-screen button:hover {
+  background-color: #0056b3;
+}
+
+.quiz-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.timer {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Question Navigation Bar */
+.question-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+/* Question Box */
+.question-box {
+  width: 40px;
+  height: 40px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  border: 2px solid #007bff;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: white;
+  color: #007bff;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Active Question Box */
+.question-box.active {
+  background-color: #007bff;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Hover Effect */
+.question-box:hover {
+  background-color: #0056b3;
+  color: white;
 }
 
-@keyframes App-logo-spin {
-  from {
+.question {
+  text-align: left;
+}
+
+.question h3 {
+  margin-bottom: 1rem;
+  white-space: normal;
+}
+
+.question label {
+  display: block;
+  margin: 0.5rem 0;
+  cursor: pointer;
+}
+
+.question input {
+  margin-right: 0.5rem;
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.navigation-buttons button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-family: "Montserrat", serif;
+  cursor: pointer;
+}
+
+.navigation-buttons button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.navigation-buttons button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.submit-button {
+  margin-top: 1rem;
+  cursor: pointer;
+  padding: 0.9rem 1.6rem;
+  font-size: 1rem;
+  background-color: #23a940;
+  font-weight: bold;
+  font-family: "Montserrat", serif;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 60%;
+}
+
+.submit-button:hover {
+  background-color: #218838;
+}
+
+.results {
+  font-size: 1.2rem;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .quiz-app {
+    padding: 1rem; /* Reduce padding for smaller screens */
+    width: 95%; /* Increase width for smaller screens */
+  }
+
+  .question-box {
+    width: 35px; /* Reduce size of question boxes */
+    height: 35px;
+    font-size: 0.9rem; /* Reduce font size */
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-app {
+    padding: 0.5rem; /* Further reduce padding for very small screens */
+    width: 90%; /* Use full width for very small screens */
+  }
+
+  .question-box {
+    width: 30px; /* Further reduce size of question boxes */
+    height: 30px;
+    font-size: 0.8rem; /* Further reduce font size */
+  }
+}
+
+/* Full-Page Spinner Overlay */
+.full-page-spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's above other elements */
+}
+
+/* Spinner Styles */
+.full-page-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #3498db; /* Spinner color */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
     transform: rotate(0deg);
   }
-  to {
+  100% {
     transform: rotate(360deg);
   }
 }
