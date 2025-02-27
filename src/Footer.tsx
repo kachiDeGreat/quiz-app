@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Kachidegreat
+          kachiDeGreat
         </a>
       </p>
     </footer>

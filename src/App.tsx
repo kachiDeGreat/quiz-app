@@ -17,7 +17,7 @@ const App: React.FC = () => {
   // State for questions, selected questions, answers, and timer
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [timeLeft, setTimeLeft] = useState<number>(12 * 60); // 12 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState<number>(1 * 60); // 12 minutes in seconds
   const [score, setScore] = useState<number | null>(null);
   const [fullName, setFullName] = useState<string>("");
   const [regNumber, setRegNumber] = useState<string>("");
@@ -101,7 +101,7 @@ const App: React.FC = () => {
     // Send data to Google Sheets via a proxy
     try {
       const response = await fetch(
-        `https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbzs6D-f6g3aSS_2UmHyPDvVn6pAQFkPSYYThzC3hBhVUvrv8h5EJw9_XbF2Ojo4xTl6/exec`,
+        "https://post-pc5cgeqoz-onyekachidegreats-projects.vercel.app/proxy",
         {
           method: "POST",
           body: JSON.stringify({
