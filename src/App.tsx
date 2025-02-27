@@ -17,7 +17,7 @@ const App: React.FC = () => {
   // State for questions, selected questions, answers, and timer
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [timeLeft, setTimeLeft] = useState<number>(1 * 60); // 12 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState<number>(12 * 60); // 12 minutes in seconds
   const [score, setScore] = useState<number | null>(null);
   const [fullName, setFullName] = useState<string>("");
   const [regNumber, setRegNumber] = useState<string>("");
@@ -123,7 +123,7 @@ const App: React.FC = () => {
           // Only mark as submitted if the data is successfully sent
           setScore(correctAnswers);
           setHasSubmitted(true);
-          toast.success("Quiz submitted!", {
+          toast.success("Test submitted!", {
             position: "top-center",
             autoClose: 8000,
             hideProgressBar: false,
@@ -200,7 +200,7 @@ const App: React.FC = () => {
     }
 
     if (checkSubmission()) {
-      toast.error("Can't submit quiz 2 times.", {
+      toast.error("Can't submit Test 2 times.", {
         theme: "colored",
         position: "top-center",
       });
@@ -232,12 +232,12 @@ const App: React.FC = () => {
           <div className="start-screen">
             <p>
               Please enter your <strong>Full Name</strong> and{" "}
-              <strong>Reg Num</strong> to begin. The quiz consists of 25
+              <strong>Reg Num</strong> to begin. The Test consists of 25
               questions, and you will have <strong>12 minutes</strong> to
-              complete it. If you do not finish within the time limit, the quiz
+              complete it. If you do not finish within the time limit, the Test
               will <strong>auto-submit</strong>. Do not refresh the page as this
               will <strong>auto-submit</strong> your answers and prevent you
-              from continuing. Once the quiz is submitted (or auto-submitted),
+              from continuing. Once the Test is submitted (or auto-submitted),
               you <strong>cannot retake it</strong>.
             </p>
 
@@ -255,7 +255,7 @@ const App: React.FC = () => {
             />
             <center>
               <br />
-              <button onClick={handleStartQuiz}>Start Quiz</button>
+              <button onClick={handleStartQuiz}>Start Test</button>
               <br />
             </center>
           </div>
@@ -323,13 +323,13 @@ const App: React.FC = () => {
                 className="submit-button"
                 disabled={isSubmitting} // Disable button while submitting
               >
-                {isSubmitting ? "Submitting..." : "Submit Quiz"}
+                {isSubmitting ? "Submitting..." : "Submit Test"}
               </button>
             </center>
           </div>
         ) : (
           <div className="results">
-            <h2>Quiz Submitted!</h2>
+            <h2>Test Submitted!</h2>
             {/* <p>Thank you for submitting!</p> */}
           </div>
         )}
