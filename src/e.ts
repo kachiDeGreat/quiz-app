@@ -6,7 +6,6 @@ import { students } from "./students";
 import "./App.css";
 import Footer from "./Footer";
 
-// Define the structure of a submission
 interface Submission {
   fullName: string;
   regNumber: string;
@@ -15,17 +14,16 @@ interface Submission {
 }
 
 const App: React.FC = () => {
-  // State for questions, selected questions, answers, and timer
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [timeLeft, setTimeLeft] = useState<number>(12 * 60); // 12 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState<number>(12 * 60);
   const [score, setScore] = useState<number | null>(null);
   const [fullName, setFullName] = useState<string>("");
   const [regNumber, setRegNumber] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [isQuizStarted, setIsQuizStarted] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // Preloader state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // Select 25 random questions on component mount
   useEffect(() => {
@@ -39,13 +37,11 @@ const App: React.FC = () => {
       const student = students.find(
         (s) => s.matricNumber.toLowerCase() === regNumber.trim().toLowerCase()
       );
-      if (student) {
-        setFullName(
-          `${student.surname} ${student.firstName} ${student.otherNames}`.trim()
-        );
-      } else {
-        setFullName("");
-      }
+      setFullName(
+        student
+          ? `${student.surname} ${student.firstName} ${student.otherNames}`.trim()
+          : ""
+      );
     } else {
       setFullName("");
     }
@@ -54,15 +50,12 @@ const App: React.FC = () => {
   // Timer logic
   useEffect(() => {
     if (timeLeft === 0) {
-      handleSubmit(true); // Auto-submit without confirmation
+      handleSubmit(true);
       return;
     }
 
     if (isQuizStarted) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-
+      const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
       return () => clearInterval(timer);
     }
   }, [timeLeft, isQuizStarted]);
@@ -72,107 +65,113 @@ const App: React.FC = () => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isQuizStarted && !hasSubmitted) {
         e.preventDefault();
-        e.returnValue = ""; // Required for Chrome
-        handleSubmit(true); // Auto-submit without confirmation
+        e.returnValue = "";
+        handleSubmit(true);
       }
     };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isQuizStarted, hasSubmitted]);
+
+  // Check if registration number exists in Google Sheets
+  const checkSubmissionInSheets = async (
+    regNumber: string
+  ): Promise<boolean> => {
+    try {
+      const response = await fetch(
+        "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec",
+        {
+          method: "POST",
+          body: JSON.stringify({ action: "check", regNumber }),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      const result = await response.json();
+      return result.exists;
+    } catch (error) {
+      console.error("Error checking submission:", error);
+      toast.error("Error verifying submission status. Please try again.");
+      return false;
+    }
+  };
 
   // Handle answer selection
   const handleAnswerSelect = (questionId: string, answer: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
   };
 
-  // Calculate score and display results
+  // Handle quiz submission
   const handleSubmit = async (isAutoSubmit: boolean = false) => {
-    if (!isAutoSubmit) {
-      // Show confirmation dialog only if not auto-submitting
-      const isConfirmed = window.confirm("Are you sure you want to submit?");
-      if (!isConfirmed) {
-        return; // Cancel submission if user clicks "No"
-      }
+    if (!isAutoSubmit && !window.confirm("Are you sure you want to submit?")) {
+      return;
     }
 
-    setIsSubmitting(true); // Show full-page spinner
+    setIsSubmitting(true);
 
-    let correctAnswers = 0;
-    selectedQuestions.forEach((question) => {
-      if (answers[question.id] === question.correctAnswer) {
-        correctAnswers++;
-      }
-    });
+    const correctAnswers = selectedQuestions.reduce(
+      (count, question) =>
+        answers[question.id] === question.correctAnswer ? count + 1 : count,
+      0
+    );
 
-    const submission: Submission = {
-      fullName,
-      regNumber,
-      answers,
-      score: correctAnswers,
-    };
-
-    // Save submission to localStorage
-    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-    submissions.push(submission);
-    localStorage.setItem("submissions", JSON.stringify(submissions));
-
-    // Send data to Google Sheets via a proxy
     try {
-      const response = await fetch(`https://post-api-five.vercel.app/proxy`, {
-        method: "POST",
-        body: JSON.stringify({
-          fullName,
-          regNumber,
-          score: `${correctAnswers}/${selectedQuestions.length}`,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      // Check if the response is JSON
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const result = await response.json(); // Parse the response as JSON
-        if (result.success) {
-          // Only mark as submitted if the data is successfully sent
-          setScore(correctAnswers);
-          setHasSubmitted(true);
-          toast.success("Quiz submitted!", {
-            position: "top-center",
-            autoClose: 8000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-        } else {
-          throw new Error(
-            result.message || "Failed to submit, reload page and try again!"
-          );
+      const response = await fetch(
+        "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            action: "submit",
+            fullName,
+            regNumber,
+            score: `${correctAnswers}/${selectedQuestions.length}`,
+          }),
+          headers: { "Content-Type": "application/json" },
         }
-      } else {
-        // Handle non-JSON responses (e.g., HTML error pages)
-        const text = await response.text();
-        throw new Error(`Unexpected response: ${text}`);
-      }
-    } catch (error) {
-      toast.error("Failed to submit, reload page and try again!", {
-        position: "top-center",
-        autoClose: 8000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      console.error(error);
+      );
 
-      // Allow the user to retry the submission
-      setHasSubmitted(false); // Reset submission state
-      setScore(null); // Reset score
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || "Submission failed");
+      }
+
+      setScore(correctAnswers);
+      setHasSubmitted(true);
+      toast.success("Quiz submitted successfully!");
+    } catch (error) {
+      toast.error(error.message || "Submission failed. Please try again.");
+      setHasSubmitted(false);
+      setScore(null);
     } finally {
-      setIsSubmitting(false); // Hide full-page spinner
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle quiz start
+  const handleStartQuiz = async () => {
+    if (!regNumber) {
+      toast.error("Please enter your registration number");
+      return;
+    }
+
+    const studentExists = students.some(
+      (s) => s.matricNumber.toLowerCase() === regNumber.trim().toLowerCase()
+    );
+
+    if (!studentExists) {
+      toast.error("You did not register for this test");
+      return;
+    }
+
+    try {
+      const alreadySubmitted = await checkSubmissionInSheets(regNumber);
+      if (alreadySubmitted) {
+        toast.error("You've already submitted this quiz");
+        return;
+      }
+      setIsQuizStarted(true);
+    } catch (error) {
+      toast.error("Error verifying submission status");
     }
   };
 
@@ -181,49 +180,6 @@ const App: React.FC = () => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
-
-  // Check if the student has already submitted
-  const checkSubmission = () => {
-    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-    const hasSubmitted = submissions.some(
-      (submission: Submission) => submission.regNumber === regNumber
-    );
-    return hasSubmitted;
-  };
-
-  // Handle quiz start
-  const handleStartQuiz = () => {
-    if (!regNumber) {
-      toast.error("Enter your registration number", {
-        theme: "colored",
-        position: "top-center",
-      });
-      return;
-    }
-
-    // Verify registration number exists in students data
-    const studentExists = students.some(
-      (s) => s.matricNumber.toLowerCase() === regNumber.trim().toLowerCase()
-    );
-
-    if (!studentExists) {
-      toast.error("You did not register for this test", {
-        theme: "colored",
-        position: "top-center",
-      });
-      return;
-    }
-
-    if (checkSubmission()) {
-      toast.error("You've already submitted this quiz.", {
-        theme: "colored",
-        position: "top-center",
-      });
-      return;
-    }
-
-    setIsQuizStarted(true);
   };
 
   // Handle next question
@@ -336,9 +292,9 @@ const App: React.FC = () => {
             </div>
             <center>
               <button
-                onClick={() => handleSubmit(false)} // Manual submission
+                onClick={() => handleSubmit(false)}
                 className="submit-button"
-                disabled={isSubmitting} // Disable button while submitting
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "Submit Quiz"}
               </button>
@@ -350,18 +306,15 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Toast Container */}
         <ToastContainer />
       </div>
 
-      {/* Full-Page Spinner */}
       {isSubmitting && (
         <div className="full-page-spinner-overlay">
           <div className="full-page-spinner"></div>
         </div>
       )}
 
-      {/* Footer Component */}
       <Footer />
     </>
   );
