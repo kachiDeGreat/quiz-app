@@ -5,35 +5,39 @@ import { questionBank, Question } from "./questions";
 import { students } from "./students";
 import "./App.css";
 import Footer from "./Footer";
-
-// Define the structure of a submission
-interface Submission {
-  fullName: string;
-  regNumber: string;
-  answers: { [key: string]: string };
-  score: number;
-}
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "./firebaseConfig";
 
 const App: React.FC = () => {
-  // State for questions, selected questions, answers, and timer
+  // State variables
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
-  const [timeLeft, setTimeLeft] = useState<number>(12 * 60); // 12 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState<number>(15 * 60);
   const [score, setScore] = useState<number | null>(null);
   const [fullName, setFullName] = useState<string>("");
   const [regNumber, setRegNumber] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
   const [isQuizStarted, setIsQuizStarted] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // Preloader state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [checkingSubmission, setCheckingSubmission] = useState<boolean>(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState<boolean>(false);
+  const [isValidStudent, setIsValidStudent] = useState<boolean>(false);
 
-  // Select 25 random questions on component mount
+  // Select random questions
   useEffect(() => {
     const shuffledQuestions = questionBank.sort(() => 0.5 - Math.random());
-    setSelectedQuestions(shuffledQuestions.slice(0, 25));
+    setSelectedQuestions(shuffledQuestions.slice(0, 30));
   }, []);
 
-  // Auto-populate full name when reg number changes
+  // Auto-populate full name and validate student
   useEffect(() => {
     if (regNumber.trim()) {
       const student = students.find(
@@ -43,157 +47,62 @@ const App: React.FC = () => {
         setFullName(
           `${student.surname} ${student.firstName} ${student.otherNames}`.trim()
         );
+        setIsValidStudent(true);
       } else {
         setFullName("");
+        setIsValidStudent(false);
       }
     } else {
       setFullName("");
+      setIsValidStudent(false);
     }
   }, [regNumber]);
 
   // Timer logic
   useEffect(() => {
-    if (timeLeft === 0) {
-      handleSubmit(true); // Auto-submit without confirmation
-      return;
-    }
-
+    if (timeLeft === 0) handleSubmit(true);
     if (isQuizStarted) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-
+      const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
       return () => clearInterval(timer);
     }
   }, [timeLeft, isQuizStarted]);
 
-  // Handle page reload or close
+  // Prevent window close
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isQuizStarted && !hasSubmitted) {
         e.preventDefault();
-        e.returnValue = ""; // Required for Chrome
-        handleSubmit(true); // Auto-submit without confirmation
+        e.returnValue = "";
+        handleSubmit(true);
       }
     };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isQuizStarted, hasSubmitted]);
 
-  // Handle answer selection
-  const handleAnswerSelect = (questionId: string, answer: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
-  };
-
-  // Calculate score and display results
-  const handleSubmit = async (isAutoSubmit: boolean = false) => {
-    if (!isAutoSubmit) {
-      // Show confirmation dialog only if not auto-submitting
-      const isConfirmed = window.confirm("Are you sure you want to submit?");
-      if (!isConfirmed) {
-        return; // Cancel submission if user clicks "No"
-      }
-    }
-
-    setIsSubmitting(true); // Show full-page spinner
-
-    let correctAnswers = 0;
-    selectedQuestions.forEach((question) => {
-      if (answers[question.id] === question.correctAnswer) {
-        correctAnswers++;
-      }
-    });
-
-    const submission: Submission = {
-      fullName,
-      regNumber,
-      answers,
-      score: correctAnswers,
-    };
-
-    // Save submission to localStorage
-    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-    submissions.push(submission);
-    localStorage.setItem("submissions", JSON.stringify(submissions));
-
-    // Send data to Google Sheets via a proxy
+  // Check if user has already submitted
+  const checkExistingSubmission = async (regNumber: string) => {
+    setCheckingSubmission(true);
     try {
-      const response = await fetch(`https://post-api-five.vercel.app/proxy`, {
-        method: "POST",
-        body: JSON.stringify({
-          fullName,
-          regNumber,
-          score: `${correctAnswers}/${selectedQuestions.length}`,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      // Check if the response is JSON
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const result = await response.json(); // Parse the response as JSON
-        if (result.success) {
-          // Only mark as submitted if the data is successfully sent
-          setScore(correctAnswers);
-          setHasSubmitted(true);
-          toast.success("Quiz submitted!", {
-            position: "top-center",
-            autoClose: 8000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-        } else {
-          throw new Error(
-            result.message || "Failed to submit, reload page and try again!"
-          );
-        }
-      } else {
-        // Handle non-JSON responses (e.g., HTML error pages)
-        const text = await response.text();
-        throw new Error(`Unexpected response: ${text}`);
-      }
+      const q = query(
+        collection(db, "quizSubmissions"),
+        where("regNumber", "==", regNumber.trim().toUpperCase())
+      );
+      const querySnapshot = await getDocs(q);
+      const exists = !querySnapshot.empty;
+      setAlreadySubmitted(exists);
+      return exists;
     } catch (error) {
-      toast.error("Failed to submit, reload page and try again!", {
-        position: "top-center",
-        autoClose: 8000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      console.error(error);
-
-      // Allow the user to retry the submission
-      setHasSubmitted(false); // Reset submission state
-      setScore(null); // Reset score
+      console.error("Firebase error:", error);
+      setAlreadySubmitted(true); // Fail safe - assume submission exists
+      return true;
     } finally {
-      setIsSubmitting(false); // Hide full-page spinner
+      setCheckingSubmission(false);
     }
-  };
-
-  // Format time (mm:ss)
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  };
-
-  // Check if the student has already submitted
-  const checkSubmission = () => {
-    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-    const hasSubmitted = submissions.some(
-      (submission: Submission) => submission.regNumber === regNumber
-    );
-    return hasSubmitted;
   };
 
   // Handle quiz start
-  const handleStartQuiz = () => {
+  const handleStartQuiz = async () => {
     if (!regNumber) {
       toast.error("Enter your registration number", {
         theme: "colored",
@@ -202,20 +111,9 @@ const App: React.FC = () => {
       return;
     }
 
-    // Verify registration number exists in students data
-    const studentExists = students.some(
-      (s) => s.matricNumber.toLowerCase() === regNumber.trim().toLowerCase()
-    );
-
-    if (!studentExists) {
-      toast.error("You did not register for this test", {
-        theme: "colored",
-        position: "top-center",
-      });
-      return;
-    }
-
-    if (checkSubmission()) {
+    // Check Firebase for existing submission
+    const hasSubmitted = await checkExistingSubmission(regNumber);
+    if (hasSubmitted) {
       toast.error("You've already submitted this quiz.", {
         theme: "colored",
         position: "top-center",
@@ -226,14 +124,59 @@ const App: React.FC = () => {
     setIsQuizStarted(true);
   };
 
-  // Handle next question
+  // Handle answer selection
+  const handleAnswerSelect = (questionId: string, answer: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+  };
+
+  // Submit quiz
+  const handleSubmit = async (isAutoSubmit: boolean = false) => {
+    if (!isAutoSubmit && !window.confirm("Are you sure you want to submit?")) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    const correctAnswers = selectedQuestions.reduce(
+      (count, question) =>
+        answers[question.id] === question.correctAnswer ? count + 1 : count,
+      0
+    );
+
+    try {
+      await addDoc(collection(db, "quizSubmissions"), {
+        fullName,
+        regNumber: regNumber.trim().toUpperCase(),
+        score: correctAnswers,
+        totalQuestions: selectedQuestions.length,
+        timestamp: serverTimestamp(),
+      });
+      setScore(correctAnswers);
+      setHasSubmitted(true);
+      toast.success("Quiz submitted successfully!", { position: "top-center" });
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast.error("Failed to submit. Please try again.", {
+        position: "top-center",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Format time
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  // Navigation handlers
   const handleNextQuestion = () => {
     if (currentQuestionIndex < selectedQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
-  // Handle previous question
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
@@ -243,13 +186,13 @@ const App: React.FC = () => {
   return (
     <>
       <div className="quiz-app">
-        <h1>Nursing Informatics (NSC371) Online Test</h1>
+        <h1>RAD 222 Online Test</h1>
         {!isQuizStarted ? (
           <div className="start-screen">
-            <p>
+            <p style={{ color: "crimson" }}>
               Please enter your <strong>Registration Number</strong> to begin.
-              The quiz consists of 25 questions, and you will have{" "}
-              <strong>12 minutes</strong> to complete it. If you do not finish
+              The quiz consists of 30 questions, and you will have{" "}
+              <strong>15 minutes</strong> to complete it. If you do not finish
               within the time limit, the quiz will <strong>auto-submit</strong>.
               Do not refresh the page as this will <strong>auto-submit</strong>{" "}
               your answers and prevent you from continuing. Once the quiz is
@@ -267,20 +210,38 @@ const App: React.FC = () => {
               type="text"
               placeholder="Full Name"
               value={fullName}
-              disabled
+              readOnly
+              className="disabled-input"
             />
 
             <center>
               <br />
-              <button onClick={handleStartQuiz}>Start Quiz</button>
+              <button
+                style={{ width: "auto" }}
+                onClick={handleStartQuiz}
+                disabled={
+                  checkingSubmission ||
+                  alreadySubmitted ||
+                  !isValidStudent ||
+                  !regNumber.trim()
+                }
+              >
+                {alreadySubmitted
+                  ? "Already Submitted"
+                  : checkingSubmission
+                  ? "Checking..."
+                  : !isValidStudent && regNumber.trim()
+                  ? "Invalid Registration"
+                  : !regNumber.trim()
+                  ? "Start Quiz"
+                  : "Start Quiz"}
+              </button>
               <br />
             </center>
           </div>
         ) : score === null ? (
           <div className="quiz-screen">
             <div className="timer">Time Left: {formatTime(timeLeft)}</div>
-
-            {/* Question Navigation Bar */}
             <div className="question-navigation">
               {selectedQuestions.map((_, index) => (
                 <div
@@ -294,31 +255,28 @@ const App: React.FC = () => {
                 </div>
               ))}
             </div>
-
             <div className="question">
               <h3>{selectedQuestions[currentQuestionIndex].text}</h3>
-              {selectedQuestions[currentQuestionIndex].options.map(
-                (option: string) => (
-                  <label key={option}>
-                    <input
-                      type="radio"
-                      name={selectedQuestions[currentQuestionIndex].id}
-                      value={option}
-                      checked={
-                        answers[selectedQuestions[currentQuestionIndex].id] ===
+              {selectedQuestions[currentQuestionIndex].options.map((option) => (
+                <label key={option}>
+                  <input
+                    type="radio"
+                    name={selectedQuestions[currentQuestionIndex].id}
+                    value={option}
+                    checked={
+                      answers[selectedQuestions[currentQuestionIndex].id] ===
+                      option
+                    }
+                    onChange={() =>
+                      handleAnswerSelect(
+                        selectedQuestions[currentQuestionIndex].id,
                         option
-                      }
-                      onChange={() =>
-                        handleAnswerSelect(
-                          selectedQuestions[currentQuestionIndex].id,
-                          option
-                        )
-                      }
-                    />
-                    {option}
-                  </label>
-                )
-              )}
+                      )
+                    }
+                  />
+                  {option}
+                </label>
+              ))}
             </div>
             <div className="navigation-buttons">
               <button
@@ -336,33 +294,41 @@ const App: React.FC = () => {
             </div>
             <center>
               <button
-                onClick={() => handleSubmit(false)} // Manual submission
                 className="submit-button"
-                disabled={isSubmitting} // Disable button while submitting
+                onClick={() => handleSubmit(false)}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "Submit Quiz"}
               </button>
+              <p style={{ marginTop: "20px", textAlign: "center" }}>
+                Website by{" "}
+                <a
+                  style={{ fontWeight: "bold" }}
+                  href="https://wa.link/nxg54p"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Kachidegreat
+                </a>
+              </p>
             </center>
           </div>
         ) : (
           <div className="results">
             <h2>Quiz Submitted!</h2>
+            {/* <p>
+              Your score: {score}/{selectedQuestions.length}
+            </p> */}
           </div>
         )}
-
-        {/* Toast Container */}
         <ToastContainer />
       </div>
-
-      {/* Full-Page Spinner */}
       {isSubmitting && (
         <div className="full-page-spinner-overlay">
           <div className="full-page-spinner"></div>
         </div>
       )}
-
-      {/* Footer Component */}
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };
