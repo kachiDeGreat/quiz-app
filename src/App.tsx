@@ -152,11 +152,15 @@ const App: React.FC = () => {
       });
       setScore(correctAnswers);
       setHasSubmitted(true);
-      toast.success("Quiz submitted successfully!", { position: "top-center" });
+      toast.success("Quiz submitted successfully!", {
+        position: "top-center",
+        theme: "colored",
+      });
     } catch (error) {
       console.error("Submission error:", error);
       toast.error("Failed to submit. Please try again.", {
         position: "top-center",
+        theme: "colored",
       });
     } finally {
       setIsSubmitting(false);
@@ -216,7 +220,8 @@ const App: React.FC = () => {
 
             <center>
               <br />
-              <button
+              {
+                /* <button
                 style={{ width: "auto" }}
                 onClick={handleStartQuiz}
                 disabled={
@@ -235,8 +240,48 @@ const App: React.FC = () => {
                   : !regNumber.trim()
                   ? "Start Quiz"
                   : "Start Quiz"}
-              </button>
+              </button> */
+                <button
+                  style={{ width: "auto" }}
+                  onClick={handleStartQuiz}
+                  disabled={
+                    checkingSubmission ||
+                    alreadySubmitted ||
+                    !isValidStudent ||
+                    !regNumber.trim()
+                  }
+                  className={
+                    checkingSubmission ||
+                    alreadySubmitted ||
+                    !isValidStudent ||
+                    !regNumber.trim()
+                      ? "disabled-button"
+                      : ""
+                  }
+                >
+                  {alreadySubmitted
+                    ? "Already Submitted"
+                    : checkingSubmission
+                    ? "Checking..."
+                    : !isValidStudent && regNumber.trim()
+                    ? "Invalid Registration"
+                    : !regNumber.trim()
+                    ? "Start Test"
+                    : "Start Test"}
+                </button>
+              }
               <br />
+              <p style={{ marginTop: "20px", textAlign: "center" }}>
+                Website by{" "}
+                <a
+                  style={{ fontWeight: "bold" }}
+                  href="https://wa.link/nxg54p"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Kachidegreat
+                </a>
+              </p>
             </center>
           </div>
         ) : score === null ? (
@@ -298,7 +343,7 @@ const App: React.FC = () => {
                 onClick={() => handleSubmit(false)}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Submitting..." : "Submit Quiz"}
+                {isSubmitting ? "Submitting..." : "Submit Test"}
               </button>
               <p style={{ marginTop: "20px", textAlign: "center" }}>
                 Website by{" "}
