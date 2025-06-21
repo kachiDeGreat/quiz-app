@@ -14,6 +14,8 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "./firebaseConfig";
+import TestOver from "./TestOver";
+import ExportToPDFButton from "./ExportToPDFButton";
 
 const App: React.FC = () => {
   // State variables
@@ -189,6 +191,8 @@ const App: React.FC = () => {
 
   return (
     <>
+      {/* <ExportToPDFButton /> */}
+      {/* <TestOver /> */}
       <div className="quiz-app">
         <h1>RAD 222 Online Test</h1>
         {!isQuizStarted ? (
@@ -221,26 +225,6 @@ const App: React.FC = () => {
             <center>
               <br />
               {
-                /* <button
-                style={{ width: "auto" }}
-                onClick={handleStartQuiz}
-                disabled={
-                  checkingSubmission ||
-                  alreadySubmitted ||
-                  !isValidStudent ||
-                  !regNumber.trim()
-                }
-              >
-                {alreadySubmitted
-                  ? "Already Submitted"
-                  : checkingSubmission
-                  ? "Checking..."
-                  : !isValidStudent && regNumber.trim()
-                  ? "Invalid Registration"
-                  : !regNumber.trim()
-                  ? "Start Quiz"
-                  : "Start Quiz"}
-              </button> */
                 <button
                   style={{ width: "auto" }}
                   onClick={handleStartQuiz}
@@ -361,9 +345,9 @@ const App: React.FC = () => {
         ) : (
           <div className="results">
             <h2>Quiz Submitted!</h2>
-            {/* <p>
+            <p>
               Your score: {score}/{selectedQuestions.length}
-            </p> */}
+            </p>
           </div>
         )}
         <ToastContainer />

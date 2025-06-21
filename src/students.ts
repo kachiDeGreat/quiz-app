@@ -1,5 +1,4 @@
 export const students = [
-  // Batch A (1-50)
   {
     id: 1,
     matricNumber: "202210051726HFU",
@@ -3111,25 +3110,25 @@ export const students = [
     otherNames: "ANNAZORR",
   },
   // ----------
-  {
-    id: 443,
-    matricNumber: "22/12345678",
-    surname: "test",
-    firstName: "test",
-    otherNames: "test",
-  },
-  {
-    id: 444,
-    matricNumber: "11/11111111TR",
-    surname: "test",
-    firstName: "test",
-    otherNames: "test",
-  },
-  {
-    id: 445,
-    matricNumber: "11/22222222",
-    surname: "test",
-    firstName: "test",
-    otherNames: "test",
-  },
+  // {
+  //   id: 443,
+  //   matricNumber: "22/12345678",
+  //   surname: "test",
+  //   firstName: "test",
+  //   otherNames: "test",
+  // },
+  // {
+  //   id: 444,
+  //   matricNumber: "11/11111111TR",
+  //   surname: "test",
+  //   firstName: "test",
+  //   otherNames: "test",
+  // },
+  // {
+  //   id: 445,
+  //   matricNumber: "11/22222222",
+  //   surname: "test",
+  //   firstName: "test",
+  //   otherNames: "test",
+  // },
 ];
