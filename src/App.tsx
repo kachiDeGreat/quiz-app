@@ -345,9 +345,6 @@ const App: React.FC = () => {
         ) : (
           <div className="results">
             <h2>Quiz Submitted!</h2>
-            <p>
-              Your score: {score}/{selectedQuestions.length}
-            </p>
           </div>
         )}
         <ToastContainer />
