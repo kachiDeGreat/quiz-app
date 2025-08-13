@@ -233,12 +233,12 @@ const Registration: React.FC<RegistrationProps> = ({
               </p>
             </div>
 
-            <button
+            {/* <button
               className="secondary-button"
               onClick={() => window.location.reload()}
             >
               Register Another Student
-            </button>
+            </button> */}
           </div>
         ) : (
           <div className="registration-form">
