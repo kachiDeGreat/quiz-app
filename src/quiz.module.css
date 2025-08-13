@@ -699,12 +699,16 @@
     gap: 12px;
   }
 
+  .instructionsCard {
+    padding: 20px;
+  }
+
   .quizTitle {
     font-size: 1.5rem;
   }
 
   .questionNavigation {
-    max-height: 120px;
+    max-height: 510px;
     padding: 16px;
     gap: 6px;
   }
@@ -752,7 +756,7 @@
   }
 
   .quizInfo {
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 16px;
   }
 
