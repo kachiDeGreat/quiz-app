@@ -1,0 +1,816 @@
+/* Container and Layout */
+.container {
+  min-height: 100vh;
+  /* Updated gradient to use #2563eb as base color */
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.centerCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Start Screen */
+.startScreen {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.header {
+  /* Updated header gradient to use #2563eb as primary color */
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+.courseTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 30px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.studentInfo {
+  display: grid;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 20px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.label {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.value {
+  font-weight: 600;
+}
+
+.instructionsCard {
+  padding: 40px;
+}
+
+.instructionsTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 24px 0;
+  text-align: center;
+}
+
+.instructionsList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px 0;
+}
+
+.instructionsList li {
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  padding-left: 40px;
+  color: #4b5563;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.instructionsList li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 16px;
+  /* Updated checkmark color to match #2563eb theme */
+  color: #2563eb;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.instructionsList li:last-child {
+  border-bottom: none;
+}
+
+.startButton {
+  width: 100%;
+  /* Updated start button to use #2563eb color scheme */
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  padding: 18px 32px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.startButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* Quiz Screen */
+.quizScreen {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.quizHeader {
+  /* Updated quiz header to use #2563eb gradient */
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.quizTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.quizInfo {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.timer,
+.progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.timerLabel,
+.progressLabel {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.timerValue,
+.progressValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.timeWarning .timerValue {
+  color: #fbbf24;
+  animation: pulse 1s infinite;
+}
+
+.timeCaution .timerValue {
+  color: #f59e0b;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Question Navigation */
+.questionNavigation {
+  padding: 24px 40px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.questionNavBtn {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #d1d5db;
+  background: white;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.questionNavBtn:hover {
+  /* Updated hover state to use #2563eb */
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.questionNavBtn.active {
+  /* Updated active state to use #2563eb */
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.questionNavBtn.answered {
+  /* Updated answered state to use complementary green */
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.questionNavBtn.answered.active {
+  background: #059669;
+  border-color: #059669;
+}
+
+/* Question Container */
+.questionContainer {
+  padding: 40px;
+}
+
+.questionText {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 32px 0;
+  line-height: 1.6;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+  position: relative;
+}
+
+.option:hover {
+  /* Updated option hover to use #2563eb */
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.option:has(.radioInput:checked) {
+  /* Updated selected option to use #2563eb */
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.radioInput {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.radioCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  margin-right: 16px;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.radioInput:checked + .radioCustom {
+  /* Updated radio button to use #2563eb */
+  border-color: #2563eb;
+  background: #2563eb;
+}
+
+.radioInput:checked + .radioCustom:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.optionText {
+  font-size: 1.1rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+/* Navigation Buttons */
+.navigationButtons {
+  padding: 0 40px 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.navButton {
+  padding: 12px 24px;
+  /* Updated navigation buttons to use #2563eb */
+  border: 2px solid #2563eb;
+  background: white;
+  color: #2563eb;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.navButton:hover:not(:disabled) {
+  /* Updated nav button hover to use #2563eb */
+  background: #2563eb;
+  color: white;
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Submit Button */
+.submitButton {
+  width: calc(100% - 80px);
+  margin: 0 40px 40px 40px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: none;
+  padding: 18px 32px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submitButton.submitting {
+  background: #9ca3af;
+  box-shadow: none;
+}
+
+/* Results Screen */
+.resultsScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.resultsCard {
+  background: white;
+  border-radius: 20px;
+  padding: 60px 40px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+}
+
+.successIcon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+}
+
+.resultsTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.thanksMessage {
+  font-size: 1.3rem;
+  color: #6b7280;
+  margin: 0 0 40px 0;
+  font-weight: 400;
+}
+
+.resultDetails {
+  margin-bottom: 40px;
+}
+
+.studentDetails {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detailItem:last-child {
+  border-bottom: none;
+}
+
+.detailLabel {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.detailValue {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.scoreSection {
+  display: flex;
+  justify-content: center;
+}
+
+.scoreCard {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.scoreNumber {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.scorePercentage {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+.scoreLabel {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.finishButton {
+  /* Updated finish button to use #2563eb gradient */
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  border: none;
+  padding: 18px 48px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.finishButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* Already Submitted Screen */
+.iconWrapper {
+  margin-bottom: 24px;
+}
+
+.checkIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  font-weight: bold;
+  margin: 0 auto;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 32px 0;
+}
+
+.messageCard {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.message {
+  font-size: 1.2rem;
+  color: #6b7280;
+  margin: 0 0 32px 0;
+  line-height: 1.6;
+}
+
+.primaryButton {
+  /* Updated primary button to use #2563eb gradient */
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  /* Added tablet breakpoint for better medium screen support */
+  .quizScreen {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+
+  .startScreen {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+
+  .questionNavigation {
+    padding: 20px 24px;
+  }
+
+  .questionContainer {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+
+  /* Enhanced header responsiveness */
+  .header {
+    padding: 32px 24px;
+  }
+
+  .quizHeader {
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .quizInfo {
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .questionNavigation {
+    padding: 20px;
+    /* Better scrolling for question navigation */
+    max-height: 160px;
+    justify-content: center;
+  }
+
+  .questionContainer {
+    padding: 24px;
+  }
+
+  /* Improved navigation buttons layout */
+  .navigationButtons {
+    padding: 0 24px 20px 24px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .submitButton {
+    width: calc(100% - 48px);
+    margin: 0 24px 24px 24px;
+  }
+
+  .courseTitle {
+    font-size: 2rem;
+  }
+
+  .resultsCard {
+    padding: 40px 24px;
+    margin: 12px;
+  }
+
+  .scoreNumber {
+    font-size: 2.5rem;
+  }
+
+  /* Better option layout for mobile */
+  .optionsList {
+    gap: 12px;
+  }
+
+  .optionItem {
+    padding: 16px;
+  }
+
+  .optionText {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Enhanced small screen support */
+  .container {
+    padding: 8px;
+  }
+
+  .header {
+    padding: 24px 16px;
+  }
+
+  .courseTitle {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .quizHeader {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .quizTitle {
+    font-size: 1.5rem;
+  }
+
+  .questionNavigation {
+    max-height: 120px;
+    padding: 16px;
+    gap: 6px;
+  }
+
+  .questionNavBtn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  .questionContainer {
+    padding: 20px 16px;
+  }
+
+  .questionText {
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+
+  .optionItem {
+    padding: 12px;
+  }
+
+  .optionText {
+    font-size: 0.95rem;
+  }
+
+  .navigationButtons {
+    padding: 0 16px 16px 16px;
+    gap: 10px;
+  }
+
+  .submitButton {
+    width: calc(100% - 32px);
+    margin: 0 16px 16px 16px;
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .infoItem {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+    padding: 12px 16px;
+  }
+
+  .quizInfo {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .timer,
+  .progress {
+    gap: 2px;
+  }
+
+  .timerValue,
+  .progressValue {
+    font-size: 1.2rem;
+  }
+
+  .resultsCard {
+    padding: 32px 20px;
+    margin: 8px;
+  }
+
+  .scoreNumber {
+    font-size: 2rem;
+  }
+
+  .scoreText {
+    font-size: 1rem;
+  }
+
+  /* Better button sizing for small screens */
+  .startButton,
+  .backButton {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .courseTitle {
+    font-size: 1.5rem;
+  }
+
+  .quizTitle {
+    font-size: 1.3rem;
+  }
+
+  .questionText {
+    font-size: 1rem;
+  }
+
+  .questionNavBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .optionText {
+    font-size: 0.9rem;
+  }
+
+  .scoreNumber {
+    font-size: 1.8rem;
+  }
+}

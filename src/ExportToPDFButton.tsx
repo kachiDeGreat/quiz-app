@@ -39,7 +39,7 @@ const ExportToPDFButton: React.FC = () => {
 
       // Add title
       doc.setFontSize(18);
-      doc.text("RAD 222 Quiz Submissions", 14, 20);
+      doc.text("NSC 203 Quiz Submissions", 14, 20);
 
       // Add date and total students
       doc.setFontSize(12);

@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
         Website by{" "}
         <a
           style={{ fontWeight: "bold" }}
-          href="https://wa.link/nxg54p"
+          href="https://www.onyekachi.dev/"
           target="_blank"
           rel="noopener noreferrer"
         >
