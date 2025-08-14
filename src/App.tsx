@@ -16,7 +16,7 @@ interface UserData {
 }
 
 const App: React.FC = () => {
-  const [quizActive, setQuizActive] = useState<boolean>(false);
+  const [quizActive, setQuizActive] = useState<boolean>(true);
   const [currentView, setCurrentView] = useState<
     "registration" | "id-verification" | "quiz"
   >(quizActive ? "id-verification" : "registration");
@@ -42,7 +42,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      {/* {currentView === "registration" && (
+      {currentView === "registration" && (
         <Registration
           onRegistrationComplete={handleRegistrationComplete}
           quizActive={quizActive}
@@ -62,11 +62,11 @@ const App: React.FC = () => {
           userData={userData}
           onBackToVerification={() => setCurrentView("id-verification")}
         />
-      )} */}
+      )}
 
       {/* <MaintenancePage /> */}
 
-      <CheckID />
+      {/* <CheckID /> */}
       <ToastContainer
         position="top-center"
         autoClose={5000}
