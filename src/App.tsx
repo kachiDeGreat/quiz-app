@@ -6,6 +6,7 @@ import Registration from "./Registration";
 import "./App.css";
 import IDVerification from "./IDVerification";
 import MaintenancePage from "./component/underMaintance/MaintenancePage";
+import CheckID from "./checkId/CheckID";
 
 interface UserData {
   fullName: string;
@@ -63,7 +64,9 @@ const App: React.FC = () => {
         />
       )} */}
 
-      <MaintenancePage />
+      {/* <MaintenancePage /> */}
+
+      <CheckID />
       <ToastContainer
         position="top-center"
         autoClose={5000}
