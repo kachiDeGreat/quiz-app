@@ -41,7 +41,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      {/* {currentView === "registration" && (
+      {currentView === "registration" && (
         <Registration
           onRegistrationComplete={handleRegistrationComplete}
           quizActive={quizActive}
@@ -61,8 +61,8 @@ const App: React.FC = () => {
           userData={userData}
           onBackToVerification={() => setCurrentView("id-verification")}
         />
-      )} */}
-      <MaintenancePage />
+      )}
+      {/* <MaintenancePage /> */}
       <ToastContainer
         position="top-center"
         autoClose={5000}
