@@ -7,6 +7,7 @@ import "./App.css";
 import IDVerification from "./IDVerification";
 import MaintenancePage from "./component/underMaintance/MaintenancePage";
 import CheckID from "./checkId/CheckID";
+import ExportToPDFButton from "./ExportToPDFButton";
 
 interface UserData {
   fullName: string;
@@ -42,7 +43,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      {currentView === "registration" && (
+      {/* {currentView === "registration" && (
         <Registration
           onRegistrationComplete={handleRegistrationComplete}
           quizActive={quizActive}
@@ -62,10 +63,10 @@ const App: React.FC = () => {
           userData={userData}
           onBackToVerification={() => setCurrentView("id-verification")}
         />
-      )}
+      )} */}
 
-      {/* <MaintenancePage /> */}
-
+      <MaintenancePage />
+      {/* <ExportToPDFButton /> */}
       {/* <CheckID /> */}
       <ToastContainer
         position="top-center"
