@@ -5,6 +5,7 @@ import Quiz from "./Quiz";
 import Registration from "./Registration";
 import "./App.css";
 import IDVerification from "./IDVerification";
+import MaintenancePage from "./component/underMaintance/MaintenancePage";
 
 interface UserData {
   fullName: string;
@@ -40,7 +41,7 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      {currentView === "registration" && (
+      {/* {currentView === "registration" && (
         <Registration
           onRegistrationComplete={handleRegistrationComplete}
           quizActive={quizActive}
@@ -60,8 +61,8 @@ const App: React.FC = () => {
           userData={userData}
           onBackToVerification={() => setCurrentView("id-verification")}
         />
-      )}
-
+      )} */}
+      <MaintenancePage />
       <ToastContainer
         position="top-center"
         autoClose={5000}

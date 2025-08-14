@@ -1,10 +1,8 @@
 /* Container and Layout */
 .container {
   min-height: 100vh;
-  /* Updated gradient to use #2563eb as base color */
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   padding: 20px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .centerCard {
@@ -28,7 +26,6 @@
 }
 
 .header {
-  /* Updated header gradient to use #2563eb as primary color */
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: white;
   padding: 40px;
@@ -101,7 +98,6 @@
   position: absolute;
   left: 0;
   top: 16px;
-  /* Updated checkmark color to match #2563eb theme */
   color: #2563eb;
   font-weight: bold;
   font-size: 1.2rem;

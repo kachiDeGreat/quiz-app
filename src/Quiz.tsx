@@ -1,7 +1,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { questionBank, type Question } from "./questions";
+import { questionBank, type Question } from "./questions_with_answers";
 import {
   collection,
   serverTimestamp,
