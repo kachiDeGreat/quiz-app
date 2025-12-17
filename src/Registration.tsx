@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast"; // Changed from react-toastify
 import {
   collection,
   addDoc,
@@ -40,6 +40,17 @@ const Registration: React.FC<RegistrationProps> = ({
   const [checkingRegistration, setCheckingRegistration] =
     useState<boolean>(false);
   const [alreadyRegistered, setAlreadyRegistered] = useState<boolean>(false);
+
+  // Helper for warnings
+  const showWarning = (message: string) => {
+    toast(message, {
+      icon: "⚠️",
+      style: {
+        background: "#F59E0B",
+        color: "#000",
+      },
+    });
+  };
 
   const generateStudentId = () => {
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -158,11 +169,28 @@ const Registration: React.FC<RegistrationProps> = ({
         quizSubmitted: false,
       });
 
+      // Success toast with custom styling for long message
       toast.success(
-        `Registration successful! Your Student ID is: ${studentId}\n` +
-          `Please save this ID - you'll need it to access the quiz.`,
-        { autoClose: 10000 }
+        `Registration successful! Your Student ID is: ${studentId}`,
+        {
+          duration: 10000,
+          style: {
+            background: "#10B981",
+            color: "#fff",
+            maxWidth: "500px",
+          },
+        }
       );
+
+      // Additional info toast
+      // toast("Please save this ID - you'll need it to access the quiz.", {
+      //   icon: "📝",
+      //   duration: 8000,
+      //   style: {
+      //     background: "#3B82F6",
+      //     color: "#fff",
+      //   },
+      // });
 
       onRegistrationComplete({
         fullName: fullName.trim(),

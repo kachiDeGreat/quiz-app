@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast"; // Changed from react-toastify
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import "./Registration.css";
@@ -20,6 +20,17 @@ const IDVerification: React.FC<IDVerificationProps> = ({
 }) => {
   const [studentId, setStudentId] = useState<string>("");
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
+
+  // Helper for warnings (since react-hot-toast doesn't have toast.warning)
+  const showWarning = (message: string) => {
+    toast(message, {
+      icon: "⚠️",
+      style: {
+        background: "#F59E0B",
+        color: "#000",
+      },
+    });
+  };
 
   const handleVerify = async () => {
     if (!studentId.trim()) {
