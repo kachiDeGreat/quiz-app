@@ -16,7 +16,7 @@ interface UserData {
 }
 
 const App: React.FC = () => {
-  const [quizActive, setQuizActive] = useState<boolean>(true);
+  const [quizActive, setQuizActive] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<
     "registration" | "id-verification" | "quiz"
   >(quizActive ? "id-verification" : "registration");
@@ -43,15 +43,15 @@ const App: React.FC = () => {
   };
 
   // Test function
-  const testToast = () => {
-    toast.success("Test toast is working!");
-    toast.error("Error test!");
-    toast.loading("Loading test...");
-    setTimeout(() => {
-      toast.dismiss();
-      toast.success("Loading complete!");
-    }, 2000);
-  };
+  // const testToast = () => {
+  //   toast.success("Test toast is working!");
+  //   toast.error("Error test!");
+  //   toast.loading("Loading test...");
+  //   setTimeout(() => {
+  //     toast.dismiss();
+  //     toast.success("Loading complete!");
+  //   }, 2000);
+  // };
 
   return (
     <div className="app">
