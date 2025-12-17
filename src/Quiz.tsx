@@ -19,7 +19,7 @@ import styles from "./quiz.module.css";
 interface QuizProps {
   userData: {
     fullName: string;
-    regNumber: string;
+    regNumber: string; 
     email: string;
     studentId: string;
   };
