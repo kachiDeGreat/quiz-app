@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Toaster, toast } from "react-hot-toast"; // Add toast import
+import React, { useState } from "react";
+import { Toaster } from "react-hot-toast";
 import Quiz from "./Quiz";
 import Registration from "./Registration";
 import "./App.css";
@@ -18,15 +18,9 @@ interface UserData {
 const App: React.FC = () => {
   const [quizActive, setQuizActive] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<
-    "registration" | "id-verification" | "quiz"
+    "registration" | "id-verification" | "quiz" | "check-id"
   >(quizActive ? "id-verification" : "registration");
   const [userData, setUserData] = useState<UserData | null>(null);
-
-  // Test toast on component mount
-  // useEffect(() => {
-  //   console.log("App mounted - testing toast...");
-  //   toast.success("App loaded successfully!");
-  // }, []);
 
   const handleRegistrationComplete = (data: UserData) => {
     setUserData(data);
@@ -42,63 +36,66 @@ const App: React.FC = () => {
     setCurrentView("registration");
   };
 
-  // Test function
-  // const testToast = () => {
-  //   toast.success("Test toast is working!");
-  //   toast.error("Error test!");
-  //   toast.loading("Loading test...");
-  //   setTimeout(() => {
-  //     toast.dismiss();
-  //     toast.success("Loading complete!");
-  //   }, 2000);
-  // };
+  const handleCheckID = () => {
+    setCurrentView("check-id");
+  };
+
+  const handleBackToMain = () => {
+    setCurrentView("registration");
+  };
 
   return (
     <div className="app">
-      {/* Test button - REMOVE THIS AFTER TESTING */}
-      {/* <button
-        onClick={testToast}
-        style={{
-          position: "fixed",
-          top: "10px",
-          left: "10px",
-          zIndex: 10000,
-          padding: "10px 20px",
-          background: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        Test Toast
-      </button> */}
-
-      {currentView === "registration" && (
-        <Registration
-          onRegistrationComplete={handleRegistrationComplete}
-          quizActive={quizActive}
-          userData={userData}
-        />
+      {/* Header */}
+      {currentView !== "check-id" && (
+        <div className="app-header">
+          <div className="header-content">
+            <h1 className="app-title">NSC 203 Online Test Portal</h1>
+            <div className="header-buttons">
+              <button onClick={handleCheckID} className="check-id-button">
+                Check My ID Status
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {currentView === "id-verification" && (
-        <IDVerification
-          onVerificationSuccess={handleIDVerificationSuccess}
-          onBackToRegistration={handleBackToRegistration}
-        />
-      )}
+      {/* Main content */}
+      <div className="app-content">
+        {currentView === "registration" && (
+          <Registration
+            onRegistrationComplete={handleRegistrationComplete}
+            quizActive={quizActive}
+            userData={userData}
+          />
+        )}
 
-      {currentView === "quiz" && userData && (
-        <Quiz
-          userData={userData}
-          onBackToVerification={() => setCurrentView("id-verification")}
-        />
-      )}
+        {currentView === "id-verification" && (
+          <IDVerification
+            onVerificationSuccess={handleIDVerificationSuccess}
+            onBackToRegistration={handleBackToRegistration}
+          />
+        )}
+
+        {currentView === "quiz" && userData && (
+          <Quiz
+            userData={userData}
+            onBackToVerification={() => setCurrentView("id-verification")}
+          />
+        )}
+
+        {currentView === "check-id" && (
+          <div className="checkid-wrapper">
+            <button onClick={handleBackToMain} className="back-button">
+              ← Back to Main Portal
+            </button>
+            <CheckID />
+          </div>
+        )}
+      </div>
 
       {/* <MaintenancePage /> */}
       {/* <ExportToPDFButton /> */}
-      {/* <CheckID /> */}
 
       <Toaster
         position="top-right"
@@ -109,7 +106,6 @@ const App: React.FC = () => {
           zIndex: 9999,
         }}
         toastOptions={{
-          // Default options
           duration: 5000,
           style: {
             background: "#363636",
@@ -118,7 +114,7 @@ const App: React.FC = () => {
             padding: "16px 24px",
             borderRadius: "8px",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            marginTop: "0",
+            marginTop: "70px",
           },
           success: {
             duration: 5000,

@@ -366,7 +366,7 @@ const Registration: React.FC<RegistrationProps> = ({
                   ? "Registering..."
                   : checkingRegistration
                   ? "Checking..."
-                  : "Register for Quiz"}
+                  : "Register for Test"}
               </button>
             )}
           </div>
