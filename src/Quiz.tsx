@@ -8,7 +8,6 @@ import {
   query,
   where,
   getDocs,
-  writeBatch,
   doc,
   addDoc,
   updateDoc,
@@ -19,7 +18,7 @@ import styles from "./quiz.module.css";
 interface QuizProps {
   userData: {
     fullName: string;
-    regNumber: string; 
+    regNumber: string;
     email: string;
     studentId: string;
   };
@@ -33,6 +32,9 @@ interface CheatingEvent {
 }
 
 const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
+  // ---------------------------------------------------------
+  // 1. STATE & REFS
+  // ---------------------------------------------------------
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [timeLeft, setTimeLeft] = useState<number>(15 * 60);
@@ -48,50 +50,30 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [deviceFingerprint, setDeviceFingerprint] = useState<string>("");
   const [showSubmitModal, setShowSubmitModal] = useState<boolean>(false);
+  const [hasCameraAccess, setHasCameraAccess] = useState<boolean>(false);
+  const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
+  const [cameraError, setCameraError] = useState<string>("");
+  const [showCameraWarning, setShowCameraWarning] = useState<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const captureIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hiddenCanvasRef = useRef<HTMLCanvasElement>(null);
   const submissionInProgressRef = useRef<boolean>(false);
   const hasCheatedRef = useRef<boolean>(false);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const quizContainerRef = useRef<HTMLDivElement>(null);
 
-  // Helper function for warning toasts
+  // ---------------------------------------------------------
+  // 2. HELPER FUNCTIONS (Defined BEFORE useEffects)
+  // ---------------------------------------------------------
+
   const showWarning = (message: string) => {
     toast(message, {
       icon: "⚠️",
-      style: {
-        background: "#F59E0B",
-        color: "#000",
-      },
+      style: { background: "#F59E0B", color: "#000" },
     });
   };
 
-  // Initialize device fingerprint
-  useEffect(() => {
-    const generateDeviceFingerprint = async () => {
-      const components = [
-        navigator.userAgent,
-        navigator.platform,
-        navigator.language,
-        window.screen.colorDepth,
-        window.screen.width,
-        window.screen.height,
-        new Date().getTimezoneOffset(),
-        !!navigator.cookieEnabled,
-        !!navigator.doNotTrack,
-        navigator.hardwareConcurrency || "unknown",
-        navigator.maxTouchPoints || "unknown",
-      ];
-
-      const fingerprint = components.join("|");
-      const hash = await sha256(fingerprint);
-      setDeviceFingerprint(hash);
-    };
-
-    generateDeviceFingerprint();
-  }, []);
-
-  // SHA-256 hash function
   const sha256 = async (message: string): Promise<string> => {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
@@ -99,229 +81,85 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
     return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   };
 
-  // Select random questions
-  useEffect(() => {
-    const shuffledQuestions = [...questionBank].sort(() => 0.5 - Math.random());
-    setSelectedQuestions(shuffledQuestions.slice(0, 30));
-  }, []);
-
-  // Request fullscreen when quiz starts
-  useEffect(() => {
-    if (isQuizStarted && !isFullScreen) {
-      requestFullScreen();
+  const stopCamera = () => {
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+      cameraStreamRef.current = null;
     }
-  }, [isQuizStarted]);
-
-  // Fullscreen request
-  const requestFullScreen = () => {
-    const element = document.documentElement;
-    if (element.requestFullscreen) {
-      element
-        .requestFullscreen()
-        .then(() => setIsFullScreen(true))
-        .catch((err) => {
-          logCheatingEvent(
-            "FULLSCREEN_DENIED",
-            `Failed to enter fullscreen: ${err.message}`
-          );
-          showWarning("Fullscreen mode is required for the quiz");
-        });
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
-  };
-
-  // Detect fullscreen changes - IMMEDIATE SUBMISSION ON EXIT
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      const isFull = !!document.fullscreenElement;
-      setIsFullScreen(isFull);
-
-      if (
-        isQuizStarted &&
-        !isFull &&
-        !hasSubmitted &&
-        !submissionInProgressRef.current
-      ) {
-        logCheatingEvent("FULLSCREEN_EXIT", "User exited fullscreen mode");
-        hasCheatedRef.current = true;
-
-        // IMMEDIATE SUBMISSION - no confirmation
-        toast.error("Fullscreen exit detected! Submitting quiz immediately...");
-        forceImmediateSubmit("FULLSCREEN_EXIT");
-      }
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () =>
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, [isQuizStarted, hasSubmitted]);
-
-  // Tab visibility detection - IMMEDIATE SUBMISSION AFTER 3 SWITCHES
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (
-        isQuizStarted &&
-        document.hidden &&
-        !hasSubmitted &&
-        !submissionInProgressRef.current
-      ) {
-        setTabSwitchCount((prev) => {
-          const newCount = prev + 1;
-          logCheatingEvent("TAB_SWITCH", `Switched tabs ${newCount} time(s)`);
-
-          if (newCount >= 3) {
-            hasCheatedRef.current = true;
-            toast.error(
-              "Excessive tab switching detected! Submitting quiz immediately..."
-            );
-            forceImmediateSubmit("EXCESSIVE_TAB_SWITCHING");
-          } else {
-            showWarning(`Warning: Tab switch detected (${newCount}/3)`);
-          }
-          return newCount;
-        });
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isQuizStarted, hasSubmitted]);
-
-  // Prevent context menu (right-click)
-  useEffect(() => {
-    const handleContextMenu = (e: MouseEvent) => {
-      if (isQuizStarted && !hasSubmitted && !submissionInProgressRef.current) {
-        e.preventDefault();
-        logCheatingEvent("CONTEXT_MENU_ATTEMPT", "Right-click attempted");
-        showWarning("Right-click is disabled during the quiz");
-      }
-    };
-
-    document.addEventListener("contextmenu", handleContextMenu);
-    return () => document.removeEventListener("contextmenu", handleContextMenu);
-  }, [isQuizStarted, hasSubmitted]);
-
-  // Prevent keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isQuizStarted || hasSubmitted || submissionInProgressRef.current)
-        return;
-
-      const forbiddenKeys = ["F12", "F5", "F11", "PrintScreen"];
-      const forbiddenCombinations = [
-        { key: "c", ctrl: true },
-        { key: "v", ctrl: true },
-        { key: "u", ctrl: true },
-        { key: "i", ctrl: true, shift: true },
-        { key: "j", ctrl: true, shift: true },
-        { key: "k", ctrl: true, shift: true },
-        { key: "r", ctrl: true },
-        { key: "r", meta: true },
-      ];
-
-      if (forbiddenKeys.includes(e.key)) {
-        e.preventDefault();
-        logCheatingEvent("KEYBOARD_SHORTCUT", `Attempted to use ${e.key}`);
-        showWarning("This keyboard shortcut is disabled during the quiz");
-        return;
-      }
-
-      for (const combo of forbiddenCombinations) {
-        if (
-          e.key.toLowerCase() === combo.key &&
-          (combo.ctrl ? e.ctrlKey : true) &&
-          (combo.shift ? e.shiftKey : true) &&
-          (combo.meta ? e.metaKey : true)
-        ) {
-          e.preventDefault();
-          logCheatingEvent(
-            "KEYBOARD_SHORTCUT",
-            `Attempted to use Ctrl+${combo.key.toUpperCase()}`
-          );
-          showWarning("Keyboard shortcuts are disabled during the quiz");
-          return;
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isQuizStarted, hasSubmitted]);
-
-  // Timer logic - IMMEDIATE SUBMISSION WHEN TIME EXPIRES
-  useEffect(() => {
-    if (timeLeft === 0 && !hasSubmitted && !submissionInProgressRef.current) {
-      toast.error("Time's up! Submitting quiz...");
-      forceImmediateSubmit("TIME_EXPIRED");
-    }
-
-    if (isQuizStarted && !hasSubmitted && !submissionInProgressRef.current) {
-      const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-      return () => clearInterval(timer);
-    }
-  }, [timeLeft, isQuizStarted, hasSubmitted]);
-
-  // Prevent window close and navigation - IMMEDIATE SUBMISSION
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isQuizStarted && !hasSubmitted && !submissionInProgressRef.current) {
-        e.preventDefault();
-        e.returnValue = "";
-
-        // Try to submit before window closes
-        if (!hasCheatedRef.current) {
-          hasCheatedRef.current = true;
-          forceImmediateSubmit("WINDOW_CLOSE");
-        }
-      }
-    };
-
-    const handlePopState = (e: PopStateEvent) => {
-      if (isQuizStarted && !hasSubmitted && !submissionInProgressRef.current) {
-        e.preventDefault();
-        logCheatingEvent(
-          "BROWSER_BACK_BUTTON",
-          "Attempted to use browser back button"
-        );
-        hasCheatedRef.current = true;
-        forceImmediateSubmit("BROWSER_NAVIGATION");
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("popstate", handlePopState);
-    window.history.pushState(null, "", window.location.href);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [isQuizStarted, hasSubmitted]);
-
-  // Start monitoring when quiz starts
-  useEffect(() => {
-    if (isQuizStarted && !hasSubmitted && !submissionInProgressRef.current) {
-      startMonitoring();
-    }
-
-    return () => {
-      stopMonitoring();
-    };
-  }, [isQuizStarted, hasSubmitted]);
-
-  const startMonitoring = async () => {
-    try {
-      captureIntervalRef.current = setInterval(captureScreen, 30000);
-      logCheatingEvent("MONITORING_STARTED", "Screen monitoring started");
-    } catch (error) {
-      logCheatingEvent("MONITORING_FAILED", "Could not start monitoring");
-    }
+    setIsCameraActive(false);
   };
 
   const stopMonitoring = () => {
     if (captureIntervalRef.current) {
       clearInterval(captureIntervalRef.current);
+      captureIntervalRef.current = null;
     }
+    // We do NOT stop the camera here during monitoring, only on unmount/submit
+    // But for safety in this specific function:
+    // stopCamera(); // Optional: kept camera running usually until full unmount
+  };
+
+  const requestCameraAccess = async (): Promise<boolean> => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera API not supported in this browser");
+      }
+
+      // If existing stream, just ensure playback
+      if (cameraStreamRef.current && videoRef.current) {
+        if (videoRef.current.srcObject !== cameraStreamRef.current) {
+          videoRef.current.srcObject = cameraStreamRef.current;
+        }
+        await videoRef.current.play();
+        return true;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 320 },
+          height: { ideal: 240 },
+        },
+        audio: false,
+      });
+
+      cameraStreamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.style.display = "block";
+
+        try {
+          await videoRef.current.play();
+        } catch (playError) {
+          console.warn("Autoplay prevented:", playError);
+        }
+      }
+
+      setHasCameraAccess(true);
+      setIsCameraActive(true);
+      return true;
+    } catch (error) {
+      console.error("Camera access error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown camera error";
+      setCameraError(errorMessage);
+      setHasCameraAccess(false);
+      setIsCameraActive(false);
+      return false;
+    }
+  };
+
+  const logCheatingEvent = (type: string, details?: string) => {
+    if (hasSubmitted || submissionInProgressRef.current) return;
+    const event: CheatingEvent = { type, timestamp: new Date(), details };
+    setCheatingEvents((prev) => [...prev, event]);
+    console.log(`[Anti-Cheat] ${type}: ${details || ""}`);
   };
 
   const captureScreen = () => {
@@ -331,10 +169,8 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
       submissionInProgressRef.current
     )
       return;
-
     const canvas = hiddenCanvasRef.current;
     const context = canvas.getContext("2d");
-
     if (!context) return;
 
     canvas.width = window.innerWidth;
@@ -360,84 +196,33 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
     }
   };
 
-  const logCheatingEvent = (type: string, details?: string) => {
-    if (hasSubmitted || submissionInProgressRef.current) return;
-
-    const event: CheatingEvent = {
-      type,
-      timestamp: new Date(),
-      details,
-    };
-
-    setCheatingEvents((prev) => [...prev, event]);
-    console.log(`[Anti-Cheat] ${type}: ${details || ""}`);
-  };
-
-  // Check if user has already submitted
-  useEffect(() => {
-    const checkSubmission = async () => {
-      try {
-        const q = query(
-          collection(db, "quizSubmissions"),
-          where("studentId", "==", userData.studentId)
-        );
-        const querySnapshot = await getDocs(q);
-        setAlreadySubmitted(!querySnapshot.empty);
-      } catch (error) {
-        console.error("Error checking submission:", error);
+  const startMonitoring = async () => {
+    try {
+      if (!isCameraActive) {
+        const cameraSuccess = await requestCameraAccess();
+        if (!cameraSuccess) {
+          toast.error("Camera access is required for the quiz");
+          setIsQuizStarted(false);
+          return;
+        }
       }
-    };
-    checkSubmission();
-  }, [userData.studentId]);
-
-  const handleStartQuiz = () => {
-    if (alreadySubmitted) {
-      toast.error("You've already submitted this quiz.");
-      return;
+      captureIntervalRef.current = setInterval(captureScreen, 30000);
+      logCheatingEvent("MONITORING_STARTED", "Monitoring started");
+    } catch (error) {
+      logCheatingEvent("MONITORING_FAILED", "Could not start monitoring");
     }
-
-    if (!document.fullscreenEnabled) {
-      showWarning("Fullscreen mode is required to start the quiz");
-      return;
-    }
-
-    setIsQuizStarted(true);
-    logCheatingEvent("QUIZ_STARTED", `Device: ${deviceFingerprint}`);
   };
 
-  const handleAnswerSelect = (questionId: string, answer: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
-  };
+  // ---------------------------------------------------------
+  // 3. SUBMISSION LOGIC (Needs to be before Effects using it)
+  // ---------------------------------------------------------
 
-  // Show custom submit confirmation modal
-  const showSubmitConfirmation = () => {
-    if (hasSubmitted || submissionInProgressRef.current) return;
-    setShowSubmitModal(true);
-  };
-
-  // Close modal
-  const closeSubmitModal = () => {
-    setShowSubmitModal(false);
-  };
-
-  // Handle manual submission after confirmation
-  const handleConfirmedSubmit = async () => {
-    setShowSubmitModal(false);
-    await handleManualSubmit();
-  };
-
-  // IMMEDIATE SUBMISSION FUNCTION - NO CONFIRMATION (for cheating)
   const forceImmediateSubmit = async (reason: string) => {
-    // Prevent multiple immediate submissions
-    if (hasSubmitted || submissionInProgressRef.current) {
-      console.log("Submission already in progress or completed");
-      return;
-    }
+    if (hasSubmitted || submissionInProgressRef.current) return;
 
     submissionInProgressRef.current = true;
     setIsSubmitting(true);
 
-    // Calculate score immediately
     const correctAnswers = selectedQuestions.reduce(
       (count, question) =>
         answers[question.id] === question.correctAnswer ? count + 1 : count,
@@ -445,7 +230,7 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
     );
 
     try {
-      // Check if already submitted to prevent duplicates
+      // Check for existing submission logic...
       const submissionCheck = query(
         collection(db, "quizSubmissions"),
         where("studentId", "==", userData.studentId)
@@ -453,7 +238,6 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
       const existingSubmissions = await getDocs(submissionCheck);
 
       if (existingSubmissions.empty) {
-        // Add quiz submission
         await addDoc(collection(db, "quizSubmissions"), {
           fullName: userData.fullName,
           regNumber: userData.regNumber,
@@ -475,13 +259,12 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
           flaggedForReview: true,
         });
 
-        // Update registration
+        // Update registration...
         const registrationQuery = query(
           collection(db, "registrations"),
           where("studentId", "==", userData.studentId)
         );
         const registrationSnapshot = await getDocs(registrationQuery);
-
         if (!registrationSnapshot.empty) {
           await updateDoc(
             doc(db, "registrations", registrationSnapshot.docs[0].id),
@@ -497,57 +280,34 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
         }
       }
 
-      // Set local state
       setScore(correctAnswers);
       setHasSubmitted(true);
 
-      // Show appropriate message
-      if (reason === "TIME_EXPIRED") {
-        toast.error("Time's up! Quiz submitted.");
-      } else {
-        toast.error(`Quiz submitted due to: ${reason}`);
-      }
+      if (reason === "TIME_EXPIRED") toast.error("Time's up! Quiz submitted.");
+      else toast.error(`Quiz submitted due to: ${reason}`);
 
-      // Stop all monitoring
       stopMonitoring();
+      stopCamera(); // Stop camera on submit
 
-      // Exit fullscreen if still in it
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
       }
 
-      // Immediately go back to verification
-      setTimeout(() => {
-        onBackToVerification();
-      }, 2000);
+      setTimeout(() => onBackToVerification(), 2000);
     } catch (error) {
-      console.error("Immediate submission failed:", error);
-
-      // Detailed error logging
-      if (error instanceof Error) {
-        console.error("Error details:", error.message);
-      }
-
-      toast.error(
-        "Auto-submission failed. Your attempt has been recorded locally."
-      );
-
+      console.error("Submission failed:", error);
+      // Fallback
       setHasSubmitted(true);
       setScore(correctAnswers);
-
-      setTimeout(() => {
-        onBackToVerification();
-      }, 2000);
+      setTimeout(() => onBackToVerification(), 2000);
     } finally {
       submissionInProgressRef.current = false;
       setIsSubmitting(false);
     }
   };
 
-  // MANUAL SUBMISSION
   const handleManualSubmit = async () => {
     if (hasSubmitted || submissionInProgressRef.current) return;
-
     submissionInProgressRef.current = true;
     setIsSubmitting(true);
 
@@ -573,7 +333,7 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
           score: correctAnswers,
           totalQuestions: selectedQuestions.length,
           isAutoSubmitted: false,
-          autoSubmitReason: "", // Changed from null to empty string
+          autoSubmitReason: "",
           cheatingEvents: cheatingEvents.map((event) => ({
             type: event.type,
             timestamp: event.timestamp,
@@ -586,12 +346,12 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
           flaggedForReview: cheatingEvents.length > 0 || tabSwitchCount > 0,
         });
 
+        // Update registration...
         const registrationQuery = query(
           collection(db, "registrations"),
           where("studentId", "==", userData.studentId)
         );
         const registrationSnapshot = await getDocs(registrationQuery);
-
         if (!registrationSnapshot.empty) {
           await updateDoc(
             doc(db, "registrations", registrationSnapshot.docs[0].id),
@@ -612,37 +372,264 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
       toast.success("Quiz submitted successfully!");
 
       stopMonitoring();
+      stopCamera(); // Stop camera on manual submit
 
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
       }
-
-      setTimeout(() => {
-        onBackToVerification();
-      }, 3000);
+      setTimeout(() => onBackToVerification(), 3000);
     } catch (error) {
-      console.error("Manual submission failed:", error);
-
-      // More detailed error logging
-      if (error instanceof Error) {
-        console.error("Error details:", error.message);
-        console.error("Error stack:", error.stack);
-
-        if (error.message.includes("permission")) {
-          toast.error("Permission denied. Please check Firebase rules.");
-        } else if (error.message.includes("network")) {
-          toast.error("Network error. Please check your connection.");
-        } else {
-          toast.error(`Submission failed: ${error.message}`);
-        }
-      } else {
-        toast.error("Submission failed. Please try again.");
-      }
+      console.error("Manual submit error", error);
+      toast.error("Submission failed.");
     } finally {
       submissionInProgressRef.current = false;
       setIsSubmitting(false);
     }
   };
+
+  // ---------------------------------------------------------
+  // 4. USE EFFECTS (Now defined AFTER functions)
+  // ---------------------------------------------------------
+
+  // Initialize device fingerprint
+  useEffect(() => {
+    const generateDeviceFingerprint = async () => {
+      const components = [
+        navigator.userAgent,
+        navigator.platform,
+        navigator.language,
+        window.screen.colorDepth,
+        window.screen.width,
+        window.screen.height,
+        new Date().getTimezoneOffset(),
+        !!navigator.cookieEnabled,
+        !!navigator.doNotTrack,
+        navigator.hardwareConcurrency || "unknown",
+        navigator.maxTouchPoints || "unknown",
+      ];
+      const fingerprint = components.join("|");
+      const hash = await sha256(fingerprint);
+      setDeviceFingerprint(hash);
+    };
+    generateDeviceFingerprint();
+  }, []);
+
+  // Select random questions
+  useEffect(() => {
+    const shuffledQuestions = [...questionBank].sort(() => 0.5 - Math.random());
+    setSelectedQuestions(shuffledQuestions.slice(0, 30));
+  }, []);
+
+  // INITIALIZE CAMERA ON MOUNT
+  // Now stopCamera is defined, so this won't error
+  useEffect(() => {
+    const initCamera = async () => {
+      if (!alreadySubmitted) {
+        await requestCameraAccess();
+      }
+    };
+    initCamera();
+
+    return () => {
+      stopCamera();
+    };
+  }, [alreadySubmitted]);
+
+  // Handle Fullscreen Camera Disconnect
+  useEffect(() => {
+    const maintainVideoPlayback = () => {
+      if (videoRef.current && cameraStreamRef.current) {
+        if (!videoRef.current.srcObject) {
+          videoRef.current.srcObject = cameraStreamRef.current;
+        }
+        if (videoRef.current.paused) {
+          videoRef.current
+            .play()
+            .catch((e) => console.log("Playback resume failed", e));
+        }
+      }
+    };
+
+    document.addEventListener("fullscreenchange", maintainVideoPlayback);
+    document.addEventListener("webkitfullscreenchange", maintainVideoPlayback);
+    document.addEventListener("mozfullscreenchange", maintainVideoPlayback);
+    document.addEventListener("MSFullscreenChange", maintainVideoPlayback);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", maintainVideoPlayback);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        maintainVideoPlayback
+      );
+      document.removeEventListener(
+        "mozfullscreenchange",
+        maintainVideoPlayback
+      );
+      document.removeEventListener("MSFullscreenChange", maintainVideoPlayback);
+    };
+  }, []);
+
+  // Fullscreen, Timer, Tab Switching, Keydown, ContextMenu Effects...
+  // (These rely on forceImmediateSubmit which is now defined)
+
+  useEffect(() => {
+    if (isQuizStarted && !isFullScreen) {
+      setTimeout(() => {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+          element
+            .requestFullscreen()
+            .then(() => setIsFullScreen(true))
+            .catch(console.error);
+        }
+      }, 500);
+    }
+  }, [isQuizStarted]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFull = !!document.fullscreenElement;
+      setIsFullScreen(isFull);
+      if (
+        isQuizStarted &&
+        !isFull &&
+        !hasSubmitted &&
+        !submissionInProgressRef.current
+      ) {
+        logCheatingEvent("FULLSCREEN_EXIT", "User exited fullscreen mode");
+        hasCheatedRef.current = true;
+        toast.error("Fullscreen exit detected! Submitting quiz immediately...");
+        forceImmediateSubmit("FULLSCREEN_EXIT");
+      }
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange
+      );
+      document.removeEventListener(
+        "mozfullscreenchange",
+        handleFullscreenChange
+      );
+      document.removeEventListener(
+        "MSFullscreenChange",
+        handleFullscreenChange
+      );
+    };
+  }, [isQuizStarted, hasSubmitted]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (
+        isQuizStarted &&
+        document.hidden &&
+        !hasSubmitted &&
+        !submissionInProgressRef.current
+      ) {
+        setTabSwitchCount((prev) => {
+          const newCount = prev + 1;
+          logCheatingEvent("TAB_SWITCH", `Switched tabs ${newCount} time(s)`);
+          if (newCount >= 3) {
+            hasCheatedRef.current = true;
+            toast.error(
+              "Excessive tab switching detected! Submitting quiz immediately..."
+            );
+            forceImmediateSubmit("EXCESSIVE_TAB_SWITCHING");
+          } else {
+            showWarning(`Warning: Tab switch detected (${newCount}/3)`);
+          }
+          return newCount;
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isQuizStarted, hasSubmitted]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && !hasSubmitted && !submissionInProgressRef.current) {
+      toast.error("Time's up! Submitting quiz...");
+      forceImmediateSubmit("TIME_EXPIRED");
+    }
+    if (isQuizStarted && !hasSubmitted && !submissionInProgressRef.current) {
+      const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+      return () => clearInterval(timer);
+    }
+  }, [timeLeft, isQuizStarted, hasSubmitted]);
+
+  // Start monitoring when quiz starts
+  useEffect(() => {
+    if (isQuizStarted && !hasSubmitted && !submissionInProgressRef.current) {
+      startMonitoring();
+    }
+    return () => {
+      // Cleanup monitoring interval on unmount/stop
+      if (captureIntervalRef.current) {
+        clearInterval(captureIntervalRef.current);
+      }
+    };
+  }, [isQuizStarted, hasSubmitted]);
+
+  // Check if user has already submitted
+  useEffect(() => {
+    const checkSubmission = async () => {
+      try {
+        const q = query(
+          collection(db, "quizSubmissions"),
+          where("studentId", "==", userData.studentId)
+        );
+        const querySnapshot = await getDocs(q);
+        setAlreadySubmitted(!querySnapshot.empty);
+      } catch (error) {
+        console.error("Error checking submission:", error);
+      }
+    };
+    checkSubmission();
+  }, [userData.studentId]);
+
+  // ---------------------------------------------------------
+  // 5. EVENT HANDLERS
+  // ---------------------------------------------------------
+
+  const handleStartQuiz = async () => {
+    if (alreadySubmitted) {
+      toast.error("You've already submitted this quiz.");
+      return;
+    }
+    if (!isCameraActive) {
+      const success = await requestCameraAccess();
+      if (!success) {
+        toast.error("Camera access is required. Please check permissions.");
+        return;
+      }
+    }
+    setIsQuizStarted(true);
+    setShowCameraWarning(false);
+    logCheatingEvent("QUIZ_STARTED", `Device: ${deviceFingerprint}`);
+  };
+
+  const handleAnswerSelect = (questionId: string, answer: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+  };
+
+  const showSubmitConfirmation = () => {
+    if (hasSubmitted || submissionInProgressRef.current) return;
+    setShowSubmitModal(true);
+  };
+
+  const closeSubmitModal = () => setShowSubmitModal(false);
+
+  const handleConfirmedSubmit = async () => {
+    setShowSubmitModal(false);
+    await handleManualSubmit();
+  };
+
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
@@ -667,7 +654,6 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
     return "";
   };
 
-  // Calculate answered questions
   const answeredQuestions = Object.keys(answers).length;
   const totalQuestions = selectedQuestions.length;
 
@@ -696,15 +682,20 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} ref={quizContainerRef}>
       <canvas ref={hiddenCanvasRef} style={{ display: "none" }} />
+      <video
+        ref={videoRef}
+        className={styles.cameraFeed}
+        autoPlay
+        muted
+        playsInline
+      />
 
-      {/* Custom Submit Confirmation Modal */}
       {showSubmitModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              {/* <h3 className={styles.modalTitle}>Submit Quiz</h3> */}
               <button
                 className={styles.modalCloseBtn}
                 onClick={closeSubmitModal}
@@ -713,13 +704,11 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
                 ×
               </button>
             </div>
-
             <div className={styles.modalBody}>
               <div className={styles.modalIcon}>⚠️</div>
               <p className={styles.modalMessage}>
                 Are you sure you want to submit your quiz?
               </p>
-
               <div className={styles.quizStats}>
                 <div className={styles.statItem}>
                   <span className={styles.statLabel}>Questions Answered:</span>
@@ -733,25 +722,14 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
                     {formatTime(timeLeft)}
                   </span>
                 </div>
-                <div className={styles.statItem}>
-                  <span className={styles.statLabel}>Current Question:</span>
-                  <span className={styles.statValue}>
-                    {currentQuestionIndex + 1}/{totalQuestions}
-                  </span>
-                </div>
               </div>
-
               <div className={styles.warningNote}>
                 <p>
                   ⚠️ <strong>Important:</strong> Once submitted, you cannot
                   retake the quiz.
                 </p>
-                <p>
-                  Make sure you have answered all questions before submitting.
-                </p>
               </div>
             </div>
-
             <div className={styles.modalFooter}>
               <button
                 className={styles.modalCancelBtn}
@@ -782,12 +760,8 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
                 <span className={styles.value}>{userData.fullName}</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.label}>Registration Number:</span>
+                <span className={styles.label}>Reg Number:</span>
                 <span className={styles.value}>{userData.regNumber}</span>
-              </div>
-              <div className={styles.infoItem}>
-                <span className={styles.label}>Student ID:</span>
-                <span className={styles.value}>{userData.studentId}</span>
               </div>
             </div>
           </div>
@@ -799,26 +773,29 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
               <li>You have 15 minutes to complete the quiz</li>
               <li>The quiz will auto-submit when time expires</li>
               <li>
-                <strong>Fullscreen mode is required</strong> - exiting
-                fullscreen will immediately submit your quiz
+                <strong>Camera access is REQUIRED</strong> and monitored
               </li>
               <li>
-                <strong>Tab switching is monitored</strong> - 3 tab switches
-                will immediately submit your quiz
+                <strong>Fullscreen mode is required</strong>
               </li>
-              <li>Keyboard shortcuts (Ctrl+C, Ctrl+V, etc.) are disabled</li>
-              <li>Right-click is disabled during the quiz</li>
-              <li>Do not refresh the page or navigate away</li>
-              <li>Once submitted, you cannot retake the quiz</li>
-              <p className={styles.warningText}>
-                <strong>⚠️ WARNING:</strong> Any violation of rules will result
-                in immediate quiz submission
-              </p>
             </ul>
 
+            <div className={styles.cameraWarning}>
+              <p>
+                <strong>⚠️ CHECK YOUR CAMERA:</strong> Your camera feed should
+                appear in the bottom-right corner now. If not, please allow
+                permissions.
+              </p>
+            </div>
+
             <button className={styles.startButton} onClick={handleStartQuiz}>
-              Start Quiz
+              Start Quiz (Enter Fullscreen)
             </button>
+            {cameraError && (
+              <div className={styles.cameraError}>
+                <p>Camera Error: {cameraError}</p>
+              </div>
+            )}
           </div>
         </div>
       ) : score === null ? (
@@ -830,6 +807,17 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
             </div>
           )}
 
+          <div className={styles.cameraStatus}>
+            <div
+              className={`${styles.cameraIndicator} ${
+                isCameraActive ? styles.active : styles.inactive
+              }`}
+            >
+              <span className={styles.cameraDot}></span>
+              {isCameraActive ? "Camera Active" : "Camera Disconnected"}
+            </div>
+          </div>
+
           <div className={styles.quizHeader}>
             <h2 className={styles.quizTitle}>NSC 203 Online Test</h2>
             <div className={styles.quizInfo}>
@@ -838,16 +826,6 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
                 <span className={styles.timerValue}>
                   {formatTime(timeLeft)}
                 </span>
-              </div>
-              <div className={styles.progress}>
-                <span className={styles.progressLabel}>Question:</span>
-                <span className={styles.progressValue}>
-                  {currentQuestionIndex + 1}/{selectedQuestions.length}
-                </span>
-              </div>
-              <div className={styles.tabSwitchWarning}>
-                <span className={styles.warningLabel}>Tab Switches:</span>
-                <span className={styles.warningValue}>{tabSwitchCount}/3</span>
               </div>
             </div>
           </div>
@@ -870,31 +848,43 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
 
           <div className={styles.questionContainer}>
             <h3 className={styles.questionText}>
-              {selectedQuestions[currentQuestionIndex].text}
+              {selectedQuestions[currentQuestionIndex]?.text}{" "}
+              <span
+                style={{
+                  fontStyle: "italic",
+                  fontSize: "0.5rem",
+                  color: "#6b7280",
+                  textTransform: "uppercase",
+                }}
+              >
+                scroll down to see more options{" "}
+              </span>
             </h3>
             <div className={styles.options}>
-              {selectedQuestions[currentQuestionIndex].options.map((option) => (
-                <label key={option} className={styles.option}>
-                  <input
-                    type="radio"
-                    name={selectedQuestions[currentQuestionIndex].id}
-                    value={option}
-                    checked={
-                      answers[selectedQuestions[currentQuestionIndex].id] ===
-                      option
-                    }
-                    onChange={() =>
-                      handleAnswerSelect(
-                        selectedQuestions[currentQuestionIndex].id,
+              {selectedQuestions[currentQuestionIndex]?.options.map(
+                (option) => (
+                  <label key={option} className={styles.option}>
+                    <input
+                      type="radio"
+                      name={selectedQuestions[currentQuestionIndex].id}
+                      value={option}
+                      checked={
+                        answers[selectedQuestions[currentQuestionIndex].id] ===
                         option
-                      )
-                    }
-                    className={styles.radioInput}
-                  />
-                  <span className={styles.radioCustom}></span>
-                  <span className={styles.optionText}>{option}</span>
-                </label>
-              ))}
+                      }
+                      onChange={() =>
+                        handleAnswerSelect(
+                          selectedQuestions[currentQuestionIndex].id,
+                          option
+                        )
+                      }
+                      className={styles.radioInput}
+                    />
+                    <span className={styles.radioCustom}></span>
+                    <span className={styles.optionText}>{option}</span>
+                  </label>
+                )
+              )}
             </div>
           </div>
 
@@ -940,32 +930,6 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
             <h2 className={styles.thanksMessage}>
               Thank you for completing the quiz!
             </h2>
-
-            <div className={styles.resultDetails}>
-              <div className={styles.studentDetails}>
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>Student:</span>
-                  <span className={styles.detailValue}>
-                    {userData.fullName}
-                  </span>
-                </div>
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>
-                    Registration Number:
-                  </span>
-                  <span className={styles.detailValue}>
-                    {userData.regNumber}
-                  </span>
-                </div>
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>Student ID:</span>
-                  <span className={styles.detailValue}>
-                    {userData.studentId}
-                  </span>
-                </div>
-              </div>
-            </div>
-
             <p className={styles.redirectMessage}>
               Redirecting back to verification...
             </p>

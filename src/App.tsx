@@ -16,7 +16,7 @@ interface UserData {
 }
 
 const App: React.FC = () => {
-  const [quizActive, setQuizActive] = useState<boolean>(false);
+  const [quizActive, setQuizActive] = useState<boolean>(true);
   const [currentView, setCurrentView] = useState<
     "registration" | "id-verification" | "quiz" | "check-id"
   >(quizActive ? "id-verification" : "registration");
@@ -47,7 +47,7 @@ const App: React.FC = () => {
   return (
     <div className="app">
       {/* Header */}
-      {currentView !== "check-id" && (
+      {/* {currentView !== "check-id" && (
         <div className="app-header">
           <div className="header-content">
             <h1 className="app-title">NSC 203 Online Test Portal</h1>
@@ -58,10 +58,10 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Main content */}
-      <div className="app-content">
+      {/* <div className="app-content">
         {currentView === "registration" && (
           <Registration
             onRegistrationComplete={handleRegistrationComplete}
@@ -92,9 +92,9 @@ const App: React.FC = () => {
             <CheckID />
           </div>
         )}
-      </div>
+      </div> */}
 
-      {/* <MaintenancePage /> */}
+      <MaintenancePage />
       {/* <ExportToPDFButton /> */}
 
       <Toaster
@@ -114,7 +114,6 @@ const App: React.FC = () => {
             padding: "16px 24px",
             borderRadius: "8px",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            marginTop: "70px",
           },
           success: {
             duration: 5000,

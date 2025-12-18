@@ -3,6 +3,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   padding: 20px;
+  position: relative;
 }
 
 .centerCard {
@@ -17,6 +18,8 @@
 
 /* Start Screen */
 .startScreen {
+  position: relative;
+  z-index: 1; /* Lower than camera */
   max-width: 800px;
   margin: 0 auto;
   background: white;
@@ -67,7 +70,6 @@
 
 .instructionsCard {
   padding: 40px;
-  height: 500px;
   overflow-y: auto;
 }
 
@@ -111,7 +113,6 @@
 
 .startButton {
   width: 100%;
-  /* Updated start button to use #2563eb color scheme */
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
@@ -131,16 +132,19 @@
 
 /* Quiz Screen */
 .quizScreen {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   background: white;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 40px);
+  position: relative;
 }
 
 .quizHeader {
-  /* Updated quiz header to use #2563eb gradient */
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: white;
   padding: 24px 40px;
@@ -183,16 +187,17 @@
   font-weight: 700;
 }
 
+/* Timer warning animations */
 .timeWarning .timerValue {
   color: #fbbf24;
-  animation: pulse 1s infinite;
+  animation: timerPulse 1s infinite;
 }
 
 .timeCaution .timerValue {
   color: #f59e0b;
 }
 
-@keyframes pulse {
+@keyframes timerPulse {
   0%,
   100% {
     opacity: 1;
@@ -228,20 +233,17 @@
 }
 
 .questionNavBtn:hover {
-  /* Updated hover state to use #2563eb */
   border-color: #2563eb;
   background: #eff6ff;
 }
 
 .questionNavBtn.active {
-  /* Updated active state to use #2563eb */
   background: #2563eb;
   color: white;
   border-color: #2563eb;
 }
 
 .questionNavBtn.answered {
-  /* Updated answered state to use complementary green */
   background: #10b981;
   color: white;
   border-color: #10b981;
@@ -255,6 +257,8 @@
 /* Question Container */
 .questionContainer {
   padding: 40px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .questionText {
@@ -284,13 +288,11 @@
 }
 
 .option:hover {
-  /* Updated option hover to use #2563eb */
   border-color: #2563eb;
   background: #eff6ff;
 }
 
 .option:has(.radioInput:checked) {
-  /* Updated selected option to use #2563eb */
   border-color: #2563eb;
   background: #eff6ff;
 }
@@ -313,7 +315,6 @@
 }
 
 .radioInput:checked + .radioCustom {
-  /* Updated radio button to use #2563eb */
   border-color: #2563eb;
   background: #2563eb;
 }
@@ -346,7 +347,6 @@
 
 .navButton {
   padding: 12px 24px;
-  /* Updated navigation buttons to use #2563eb */
   border: 2px solid #2563eb;
   background: white;
   color: #2563eb;
@@ -358,7 +358,6 @@
 }
 
 .navButton:hover:not(:disabled) {
-  /* Updated nav button hover to use #2563eb */
   background: #2563eb;
   color: white;
 }
@@ -470,40 +469,7 @@
   color: #1f2937;
 }
 
-.scoreSection {
-  display: flex;
-  justify-content: center;
-}
-
-.scoreCard {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  padding: 32px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-}
-
-.scoreNumber {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.scorePercentage {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  opacity: 0.9;
-}
-
-.scoreLabel {
-  font-size: 1rem;
-  opacity: 0.8;
-}
-
 .finishButton {
-  /* Updated finish button to use #2563eb gradient */
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: white;
   border: none;
@@ -563,7 +529,6 @@
 }
 
 .primaryButton {
-  /* Updated primary button to use #2563eb gradient */
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: white;
   border: none;
@@ -581,259 +546,32 @@
   box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  /* Added tablet breakpoint for better medium screen support */
-  .quizScreen {
-    max-width: 95%;
-    margin: 10px auto;
-  }
-
-  .startScreen {
-    max-width: 95%;
-    margin: 10px auto;
-  }
-
-  .questionNavigation {
-    padding: 20px 24px;
-  }
-
-  .questionContainer {
-    padding: 32px 24px;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 12px;
-  }
-
-  /* Enhanced header responsiveness */
-  .header {
-    padding: 32px 24px;
-  }
-
-  .quizHeader {
-    padding: 20px;
-    flex-direction: column;
-    text-align: center;
-    gap: 16px;
-  }
-
-  .quizInfo {
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .questionNavigation {
-    padding: 20px;
-    /* Better scrolling for question navigation */
-    max-height: 160px;
-    justify-content: center;
-  }
-
-  .questionContainer {
-    padding: 24px;
-  }
-
-  /* Improved navigation buttons layout */
-  .navigationButtons {
-    padding: 0 24px 20px 24px;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .submitButton {
-    width: calc(100% - 48px);
-    margin: 0 24px 24px 24px;
-  }
-
-  .courseTitle {
-    font-size: 2rem;
-  }
-
-  .resultsCard {
-    padding: 40px 24px;
-    margin: 12px;
-  }
-
-  .scoreNumber {
-    font-size: 2.5rem;
-  }
-
-  /* Better option layout for mobile */
-  .optionsList {
-    gap: 12px;
-  }
-
-  .optionItem {
-    padding: 16px;
-  }
-
-  .optionText {
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-}
-
-@media (max-width: 480px) {
-  /* Enhanced small screen support */
-  .container {
-    padding: 8px;
-  }
-
-  .header {
-    padding: 24px 16px;
-  }
-
-  .courseTitle {
-    font-size: 1.75rem;
-    line-height: 1.2;
-  }
-
-  .quizHeader {
-    padding: 16px;
-    gap: 12px;
-  }
-
-  .instructionsCard {
-    padding: 20px;
-  }
-
-  .quizTitle {
-    font-size: 1.5rem;
-  }
-
-  .questionNavigation {
-    max-height: 510px;
-    padding: 16px;
-    gap: 6px;
-  }
-
-  .questionNavBtn {
-    width: 35px;
-    height: 35px;
-    font-size: 0.9rem;
-  }
-
-  .questionContainer {
-    padding: 20px 16px;
-  }
-
-  .questionText {
-    font-size: 1.1rem;
-    line-height: 1.4;
-  }
-
-  .optionItem {
-    padding: 12px;
-  }
-
-  .optionText {
-    font-size: 0.95rem;
-  }
-
-  .navigationButtons {
-    padding: 0 16px 16px 16px;
-    gap: 10px;
-  }
-
-  .submitButton {
-    width: calc(100% - 32px);
-    margin: 0 16px 16px 16px;
-    padding: 14px;
-    font-size: 1rem;
-  }
-
-  .infoItem {
-    flex-direction: column;
-    gap: 4px;
-    text-align: center;
-    padding: 12px 16px;
-  }
-
-  .quizInfo {
-    /* flex-direction: column; */
-    gap: 16px;
-  }
-
-  .timer,
-  .progress {
-    gap: 2px;
-  }
-
-  .timerValue,
-  .progressValue {
-    font-size: 1.2rem;
-  }
-
-  .resultsCard {
-    padding: 32px 20px;
-    margin: 8px;
-  }
-
-  .scoreNumber {
-    font-size: 2rem;
-  }
-
-  .scoreText {
-    font-size: 1rem;
-  }
-
-  /* Better button sizing for small screens */
-  .startButton,
-  .backButton {
-    padding: 14px 24px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .courseTitle {
-    font-size: 1.5rem;
-  }
-
-  .quizTitle {
-    font-size: 1.3rem;
-  }
-
-  .questionText {
-    font-size: 1rem;
-  }
-
-  .questionNavBtn {
-    width: 32px;
-    height: 32px;
-    font-size: 0.8rem;
-  }
-
-  .optionText {
-    font-size: 0.9rem;
-  }
-
-  .scoreNumber {
-    font-size: 1.8rem;
-  }
-}
-/* Add these to your existing quiz.module.css */
-
 /* Fullscreen warning */
 .fullscreenWarning {
-  background-color: #ffeb3b;
-  color: #333;
-  padding: 10px 20px;
+  background: linear-gradient(135deg, #ff6b6b, #ff4757);
+  color: white;
+  padding: 15px 20px;
   text-align: center;
-  border-radius: 5px;
-  margin-bottom: 20px;
+  border-radius: 0;
+  margin: 0;
   font-weight: bold;
-  animation: pulse 2s infinite;
+  animation: warningPulse 2s infinite;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
+@keyframes warningPulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Tab switch warning */
@@ -865,97 +603,54 @@
   font-weight: bold;
   border-left: 3px solid #dc3545;
   padding-left: 10px;
-
   margin-top: 10px;
+  margin-bottom: 20px;
 }
 
-/* Privacy notice */
-.privacyNotice {
-  background-color: #e3f2fd;
-  border: 1px solid #bbdefb;
+/* Camera warning */
+.cameraWarning {
+  background: linear-gradient(135deg, #ffb74d, #ff9800);
+  border-left: 4px solid #ff9800;
+  padding: 16px;
   border-radius: 8px;
-  padding: 15px;
   margin: 20px 0;
-  font-size: 14px;
+  color: #333;
+}
+
+.cameraWarning p {
+  margin: 8px 0;
   line-height: 1.5;
 }
 
-.privacyNotice p {
-  margin: 0;
-  color: #1565c0;
+.cameraWarning strong {
+  color: #e65100;
 }
 
-/* Timer warning styles */
-.timeWarning {
-  color: #dc3545 !important;
-  animation: blink 1s infinite;
-}
-
-.timeCaution {
-  color: #ff9800 !important;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* Disabled state for navigation when cheating detected */
-.navButton:disabled,
-.submitButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Question navigation with answered status */
-.questionNavBtn.answered {
-  background-color: #4caf50 !important;
-  color: white !important;
-}
-
-.questionNavBtn.active {
-  border: 2px solid #2196f3 !important;
-}
-
-/* Camera permission warning */
-.cameraWarning {
-  background-color: #ffcdd2;
-  border: 1px solid #ef9a9a;
-  border-radius: 4px;
-  padding: 10px;
-  margin: 10px 0;
-  color: #c62828;
-  font-size: 14px;
-}
-
-/* Security monitoring indicator */
-.securityIndicator {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  background-color: #4caf50;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  z-index: 1000;
-}
-
-.securityIndicator::before {
-  content: "●";
+/* Camera Error Message */
+.cameraError {
+  background: linear-gradient(135deg, #ef9a9a, #f44336);
+  border-left: 4px solid #d32f2f;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
   color: #fff;
-  animation: pulse 2s infinite;
+  text-align: center;
 }
 
-.redirectMessage {
-  text-align: center;
-  color: #666;
-  font-size: 14px;
-  margin-top: 20px;
-  font-style: italic;
+.cameraError p {
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+/* Timer warning blink animation */
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Modal Styles */
@@ -969,7 +664,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 99999;
   backdrop-filter: blur(4px);
 }
 
@@ -1143,17 +838,626 @@
   cursor: not-allowed;
 }
 
-/* Update existing styles for better modal integration */
-.quizScreen {
-  position: relative;
-}
-
-/* Ensure modal works in fullscreen */
-:fullscreen .modalOverlay {
+/* CAMERA FEED STYLES */
+.cameraFeed {
   position: fixed;
-  z-index: 9999;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  border-radius: 12px;
+  border: 3px solid #4caf50;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  object-fit: cover;
+  background-color: #000;
+  z-index: 10000; /* High z-index to sit on top of everything */
+  transform: scaleX(-1);
+  transition: all 0.3s ease;
+  display: block; /* Ensure it is displayed by default */
 }
 
-:fullscreen .modalContent {
-  max-width: 450px;
+.cameraFeed:hover {
+  border-color: #2e7d32;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+  transform: scaleX(-1) scale(1.05);
+}
+
+/* Camera Status Indicator */
+.cameraStatus {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10001;
+  pointer-events: none;
+}
+
+.cameraIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cameraIndicator.active {
+  background: rgba(46, 125, 50, 0.2);
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.3);
+}
+
+.cameraIndicator.inactive {
+  background: rgba(211, 47, 47, 0.2);
+  color: #d32f2f;
+  border: 1px solid rgba(211, 47, 47, 0.3);
+}
+
+.cameraDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cameraIndicator.active .cameraDot {
+  background-color: #4caf50;
+  box-shadow: 0 0 8px #4caf50;
+  animation: cameraPulse 2s infinite;
+}
+
+.cameraIndicator.inactive .cameraDot {
+  background-color: #f44336;
+  box-shadow: 0 0 8px #f44336;
+}
+
+@keyframes cameraPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Privacy Overlay for Camera Feed */
+.cameraFeed::after {
+  content: "LIVE";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 1px;
+}
+
+/* FULLSCREEN STYLES */
+:fullscreen .container {
+  background: white;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+:fullscreen .quizScreen {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+:fullscreen .quizHeader {
+  border-radius: 0;
+  flex-shrink: 0;
+}
+
+:fullscreen .questionContainer {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+:fullscreen .cameraFeed {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  width: 220px !important;
+  height: 165px !important;
+  z-index: 99999 !important;
+  display: block !important;
+  transform: scaleX(-1) !important;
+}
+
+:fullscreen .cameraStatus {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 100000 !important;
+}
+
+:fullscreen .modalOverlay {
+  z-index: 100001 !important;
+}
+
+/* Ensure camera maintains stream in fullscreen */
+:fullscreen video.cameraFeed {
+  transform: scaleX(-1) !important;
+}
+
+/* Prevent scrolling in fullscreen */
+:fullscreen {
+  overflow: hidden !important;
+}
+
+/* Ensure quiz content is properly sized in fullscreen */
+:fullscreen .questionNavigation {
+  flex-shrink: 0;
+  padding: 15px 20px;
+  max-height: 150px;
+}
+
+:fullscreen .navigationButtons {
+  flex-shrink: 0;
+}
+
+:fullscreen .submitButton {
+  flex-shrink: 0;
+}
+
+:fullscreen .questionNavBtn {
+  width: 35px;
+  height: 35px;
+}
+
+:fullscreen .option {
+  padding: 25px;
+  font-size: 1.1rem;
+}
+
+:fullscreen .optionText {
+  font-size: 1.2rem;
+}
+
+/* Ensure start screen works in fullscreen */
+:fullscreen .startScreen {
+  max-width: 100%;
+  height: 100vh;
+  border-radius: 0;
+  overflow-y: auto;
+}
+
+:fullscreen .instructionsCard {
+  height: auto;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Browser-specific fullscreen styles */
+:-webkit-full-screen .container {
+  background: white;
+}
+
+:-moz-full-screen .container {
+  background: white;
+}
+
+:-ms-fullscreen .container {
+  background: white;
+}
+
+/* Redirect message */
+.redirectMessage {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-top: 20px;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .quizScreen {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+
+  .startScreen {
+    max-width: 95%;
+    margin: 10px auto;
+  }
+
+  .questionNavigation {
+    padding: 20px 24px;
+  }
+
+  .questionContainer {
+    padding: 32px 24px;
+  }
+}
+
+/* Responsive Design - Tablet/Mobile */
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+
+  .header {
+    padding: 32px 24px;
+  }
+
+  .quizHeader {
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .quizInfo {
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .questionNavigation {
+    padding: 20px;
+    max-height: 160px;
+    justify-content: center;
+  }
+
+  .questionContainer {
+    padding: 24px;
+  }
+
+  .navigationButtons {
+    padding: 0 24px 20px 24px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .submitButton {
+    width: calc(100% - 48px);
+    margin: 0 24px 24px 24px;
+  }
+
+  .courseTitle {
+    font-size: 2rem;
+  }
+
+  .resultsCard {
+    padding: 40px 24px;
+    margin: 12px;
+  }
+
+  .scoreNumber {
+    font-size: 2.5rem;
+  }
+
+  /* Camera adjustments for mobile */
+  .cameraFeed {
+    width: 100px;
+    height: 75px;
+    bottom: 15px;
+    right: 15px;
+  }
+
+  /* CRITICAL FIX: Override the default :fullscreen size (which is 220px) 
+     to be much smaller on mobile so it doesn't block buttons.
+  */
+  :fullscreen .cameraFeed {
+    width: 100px !important;
+    height: 75px !important;
+    bottom: 15px !important;
+    right: 15px !important;
+    border-width: 2px !important;
+  }
+
+  .cameraStatus {
+    top: 15px;
+    right: 15px;
+  }
+
+  .cameraIndicator {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  .container {
+    padding: 8px;
+  }
+
+  .header {
+    padding: 24px 16px;
+  }
+
+  .courseTitle {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .quizHeader {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .instructionsCard {
+    padding: 20px;
+  }
+
+  .quizTitle {
+    font-size: 1.5rem;
+  }
+
+  .questionNavigation {
+    height: auto; /* Changed from fixed height to auto */
+    max-height: 150px;
+    padding: 16px;
+    gap: 6px;
+  }
+
+  .questionNavBtn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  .questionContainer {
+    padding: 20px 16px;
+    /* Add padding bottom to ensure text doesn't go behind camera */
+    padding-bottom: 60px;
+  }
+
+  .questionText {
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+
+  .option {
+    padding: 12px;
+  }
+
+  .optionText {
+    font-size: 0.95rem;
+  }
+
+  .navigationButtons {
+    padding: 0 16px 16px 16px;
+    gap: 10px;
+    /* Add extra margin at bottom so buttons aren't flush with screen edge/camera */
+    margin-bottom: 20px;
+  }
+
+  .submitButton {
+    width: calc(100% - 32px);
+    margin: 0 16px 16px 16px;
+    padding: 14px;
+    font-size: 1rem;
+    /* Ensure submit button is above camera z-index context if needed, 
+       though camera z-index is higher, we move camera away */
+  }
+
+  .infoItem {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+    padding: 12px 16px;
+  }
+
+  .quizInfo {
+    gap: 16px;
+  }
+
+  .timer,
+  .progress {
+    gap: 2px;
+  }
+
+  .timerValue,
+  .progressValue {
+    font-size: 1.2rem;
+  }
+
+  .resultsCard {
+    padding: 32px 20px;
+    margin: 8px;
+  }
+
+  .startButton {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+
+  /* Mobile Camera Smallest: 
+     Making it very compact (80px) and forcing thin border 
+  */
+  .cameraFeed {
+    width: 80px;
+    height: 60px;
+    bottom: 10px;
+    right: 10px;
+    border-width: 2px;
+  }
+
+  /* Force override for fullscreen on small screens */
+  :fullscreen .cameraFeed {
+    width: 80px !important;
+    height: 60px !important;
+    bottom: 10px !important;
+    right: 10px !important;
+    border-width: 2px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 8px;
+  }
+
+  .header {
+    padding: 24px 16px;
+  }
+
+  .courseTitle {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .quizHeader {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .instructionsCard {
+    padding: 20px;
+  }
+
+  .quizTitle {
+    font-size: 1.5rem;
+  }
+
+  .questionNavigation {
+    height: 500px;
+    padding: 16px;
+    gap: 6px;
+  }
+
+  .questionNavBtn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  .questionContainer {
+    padding: 20px 16px;
+  }
+
+  .questionText {
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+
+  .option {
+    padding: 12px;
+  }
+
+  .optionText {
+    font-size: 0.95rem;
+  }
+
+  .navigationButtons {
+    padding: 0 16px 16px 16px;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .submitButton {
+    width: calc(100% - 32px);
+    margin: 0 16px 16px 16px;
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .infoItem {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+    padding: 12px 16px;
+  }
+
+  .quizInfo {
+    gap: 16px;
+  }
+
+  .timer,
+  .progress {
+    gap: 2px;
+  }
+
+  .timerValue,
+  .progressValue {
+    font-size: 1.2rem;
+  }
+
+  .resultsCard {
+    padding: 32px 20px;
+    margin: 8px;
+  }
+
+  .startButton {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+
+  /* Mobile camera adjustments */
+  .cameraFeed {
+    width: 140px;
+    height: 105px;
+    bottom: 10px;
+    right: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .courseTitle {
+    font-size: 1.5rem;
+  }
+
+  .quizTitle {
+    font-size: 1.3rem;
+  }
+
+  .questionText {
+    font-size: 1rem;
+  }
+
+  .questionNavBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .optionText {
+    font-size: 0.9rem;
+  }
+}
+
+/* Fix for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .cameraFeed {
+    transform: scaleX(-1);
+  }
+
+  :fullscreen .cameraFeed {
+    transform: scaleX(-1);
+  }
+}
+
+/* Fix for Firefox */
+@-moz-document url-prefix() {
+  .cameraFeed {
+    transform: scaleX(-1);
+  }
 }

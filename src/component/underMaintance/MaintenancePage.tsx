@@ -25,13 +25,19 @@ const MaintenancePage: React.FC = () => {
           </svg>
         </div>
 
-        <h1 className="maintenance-title">Quiz App Under Maintenance</h1>
+        <h1
+          className="maintenance-title"
+          style={{ textTransform: "uppercase" }}
+        >
+          Test is starting soon
+        </h1>
+        {/* <h1 className="maintenance-title">Quiz App Under Maintenance</h1> */}
 
-        <p className="maintenance-description">
+        {/* <p className="maintenance-description">
           We're upgrading our quiz platform to bring you better questions and
           improved features. Use this time to prepare for your upcoming tests -
           we'll be back soon with enhanced study tools!
-        </p>
+        </p> */}
 
         <div className="maintenance-progress">
           <div className="progress-bar">
