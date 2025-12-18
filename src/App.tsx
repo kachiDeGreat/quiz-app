@@ -61,7 +61,7 @@ const App: React.FC = () => {
       )} */}
 
       {/* Main content */}
-      {/* <div className="app-content">
+      <div className="app-content">
         {currentView === "registration" && (
           <Registration
             onRegistrationComplete={handleRegistrationComplete}
@@ -92,9 +92,9 @@ const App: React.FC = () => {
             <CheckID />
           </div>
         )}
-      </div> */}
+      </div>
 
-      <MaintenancePage />
+      {/* <MaintenancePage /> */}
       {/* <ExportToPDFButton /> */}
 
       <Toaster
