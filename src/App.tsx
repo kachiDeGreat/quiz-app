@@ -93,7 +93,14 @@ const App: React.FC = () => {
           </div>
         )}
       </div> */}
-
+      {currentView === "check-id" && (
+        <div className="checkid-wrapper">
+          <button onClick={handleBackToMain} className="back-button">
+            ← Back to Main Portal
+          </button>
+          <CheckID />
+        </div>
+      )}
       <MaintenancePage />
       {/* <ExportToPDFButton /> */}
 
