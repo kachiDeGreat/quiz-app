@@ -55,10 +55,10 @@ const ExportToPDFButton: React.FC = () => {
       });
 
       // Log the simplified data to console
-      console.log("NSC 203 Quiz Results Export");
-      console.log("=".repeat(50));
-      console.log("Rank\tName\tReg Number\tStudent ID\tScore\tAuto Submitted");
-      console.log("-".repeat(50));
+      // console.log("NSC 203 Quiz Results Export");
+      // console.log("=".repeat(50));
+      // console.log("Rank\tName\tReg Number\tStudent ID\tScore\tAuto Submitted");
+      // console.log("-".repeat(50));
 
       submissions.forEach((sub, index) => {
         console.log(
