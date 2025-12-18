@@ -25,20 +25,20 @@ const MaintenancePage: React.FC = () => {
           </svg>
         </div>
 
-        <h1
+        {/* <h1
           className="maintenance-title"
           style={{ textTransform: "uppercase" }}
         >
           Test is starting soon
-        </h1>
-        {/* <h1 className="maintenance-title">Quiz App Under Maintenance</h1> */}
+        </h1> */}
+        <h1 className="maintenance-title">Quiz App Under Maintenance</h1>
 
-        <p className="maintenance-description">
+        {/* <p className="maintenance-description">
           The mock test starts at 9 PM. Students who did not get their IDs
           during registration can retrieve them now by clicking the 'Check My ID
           Status' button in the top right corner. Those who did not register
           should contact their course lecturer for further instructions.
-        </p>
+        </p> */}
 
         <div className="maintenance-progress">
           <div className="progress-bar">
