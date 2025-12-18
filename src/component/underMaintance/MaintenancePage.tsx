@@ -33,11 +33,12 @@ const MaintenancePage: React.FC = () => {
         </h1>
         {/* <h1 className="maintenance-title">Quiz App Under Maintenance</h1> */}
 
-        {/* <p className="maintenance-description">
-          We're upgrading our quiz platform to bring you better questions and
-          improved features. Use this time to prepare for your upcoming tests -
-          we'll be back soon with enhanced study tools!
-        </p> */}
+        <p className="maintenance-description">
+          The mock test starts at 9 PM. Students who did not get their IDs
+          during registration can retrieve them now by clicking the 'Check My ID
+          Status' button in the top right corner. Those who did not register
+          should contact their course lecturer for further instructions.
+        </p>
 
         <div className="maintenance-progress">
           <div className="progress-bar">
@@ -50,9 +51,12 @@ const MaintenancePage: React.FC = () => {
           {/* <a href="https://wa.link/7fu1sh" className="contact-link">
             Contact Support
           </a> */}
-          {/* <a href="mailto:mail.ricx@gmail.com" className="contact-link">
+          <a
+            href="mailto:onyekachi.godswill.richard@gmail.com"
+            className="contact-link"
+          >
             Contact Support
-          </a> */}
+          </a>
         </div>
       </div>
     </div>
