@@ -47,7 +47,7 @@ const App: React.FC = () => {
   return (
     <div className="app">
       {/* Header */}
-      {/* {currentView !== "check-id" && (
+      {currentView !== "check-id" && (
         <div className="app-header">
           <div className="header-content">
             <h1 className="app-title">NCS 313 Online Test Portal</h1>
@@ -58,10 +58,10 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Main content */}
-      {/* <div className="app-content">
+      <div className="app-content">
         {currentView === "registration" && (
           <Registration
             onRegistrationComplete={handleRegistrationComplete}
@@ -92,9 +92,9 @@ const App: React.FC = () => {
             <CheckID />
           </div>
         )}
-      </div> */}
+      </div>
 
-      <MaintenancePage />
+      {/* <MaintenancePage /> */}
       {/* <ExportToPDFButton /> */}
 
       <Toaster

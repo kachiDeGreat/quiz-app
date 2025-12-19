@@ -72,7 +72,7 @@ body {
 
 /* Back button for CheckID page */
 .back-button {
-  /* display: inline-block; */
+  display: inline-block;
   background: #3b82f6;
   position: fixed;
   color: white;
@@ -85,7 +85,8 @@ body {
   transition: all 0.3s ease;
   border: none;  font-family: "Montserrat", serif;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-top: 30px;
+  margin-left: 50px !important;
 }
 
 .back-button:hover {

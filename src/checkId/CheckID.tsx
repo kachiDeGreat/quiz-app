@@ -75,7 +75,7 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
           <p className="form-description">
             Enter your registration number or email to retrieve your Student ID{" "}
             <br />
-            <strong>TEST STARTS BY 6PM ENDS BY 7:30PM</strong>
+            <strong>TEST STARTS BY 7PM ENDS BY 8:30PM 20TH/DEC/2025</strong>
           </p>
 
           <div className="form-group">
