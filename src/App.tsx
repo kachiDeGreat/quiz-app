@@ -50,7 +50,7 @@ const App: React.FC = () => {
       {/* {currentView !== "check-id" && (
         <div className="app-header">
           <div className="header-content">
-            <h1 className="app-title">NSC 203 Online Test Portal</h1>
+            <h1 className="app-title">NCS 313 Online Test Portal</h1>
             <div className="header-buttons">
               <button onClick={handleCheckID} className="check-id-button">
                 Check My ID Status

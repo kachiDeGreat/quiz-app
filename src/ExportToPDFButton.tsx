@@ -55,7 +55,7 @@ const ExportToPDFButton: React.FC = () => {
       });
 
       // Log the simplified data to console
-      // console.log("NSC 203 Quiz Results Export");
+      // console.log("NCS 313 Quiz Results Export");
       // console.log("=".repeat(50));
       // console.log("Rank\tName\tReg Number\tStudent ID\tScore\tAuto Submitted");
       // console.log("-".repeat(50));
@@ -77,7 +77,7 @@ const ExportToPDFButton: React.FC = () => {
 
       // Add title and metadata
       doc.setFontSize(18);
-      doc.text("NSC 203 Quiz Results - Detailed Report", 14, 20);
+      doc.text("NCS 313 Quiz Results - Detailed Report", 14, 20);
 
       doc.setFontSize(10);
       doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);

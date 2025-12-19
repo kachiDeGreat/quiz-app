@@ -67,7 +67,7 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
     <div className="registration-container">
       <div className="registration-card">
         <div className="registration-header">
-          <h1>NSC 203 Online Test</h1>
+          <h1>NCS 313 Online Test</h1>
           <h2>Retrieve Your Student ID</h2>
         </div>
 
