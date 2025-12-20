@@ -1,4 +1,11 @@
 import React, { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Quiz from "./Quiz";
 import Registration from "./Registration";
@@ -15,12 +22,13 @@ interface UserData {
   studentId: string;
 }
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [quizActive, setQuizActive] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<
     "registration" | "id-verification" | "quiz" | "check-id"
   >(quizActive ? "id-verification" : "registration");
   const [userData, setUserData] = useState<UserData | null>(null);
+  const location = useLocation();
 
   const handleRegistrationComplete = (data: UserData) => {
     setUserData(data);
@@ -36,32 +44,39 @@ const App: React.FC = () => {
     setCurrentView("registration");
   };
 
-  const handleCheckID = () => {
-    setCurrentView("check-id");
-  };
+  // If we're on the check-id route, show CheckID component
+  if (location.pathname === "/check-id") {
+    return (
+      <div className="checkid-wrapper">
+        <Link to="/" className="back-button">
+          ← Back to Main Portal
+        </Link>
+        <CheckID />
+      </div>
+    );
+  }
 
-  const handleBackToMain = () => {
-    setCurrentView("registration");
-  };
-
+  // Otherwise, show the original state-based app
   return (
-    <div className="app">
+    <>
       {/* Header */}
       {currentView !== "check-id" && (
         <div className="app-header">
           <div className="header-content">
-            <h1 className="app-title">NCS 313 Online Test Portal</h1>
+            <h1 className="app-title">
+              NCS 313 / 301 Online Test Portal
+            </h1>
             <div className="header-buttons">
-              <button onClick={handleCheckID} className="check-id-button">
+              <Link to="/check-id" className="check-id-button">
                 Check My ID Status
-              </button>
+              </Link>
             </div>
           </div>
         </div>
       )}
 
       {/* Main content */}
-      <div className="app-content">
+      {/* <div className="app-content">
         {currentView === "registration" && (
           <Registration
             onRegistrationComplete={handleRegistrationComplete}
@@ -83,70 +98,73 @@ const App: React.FC = () => {
             onBackToVerification={() => setCurrentView("id-verification")}
           />
         )}
+      </div> */}
+    </>
+  );
+};
 
-        {currentView === "check-id" && (
-          <div className="checkid-wrapper">
-            <button onClick={handleBackToMain} className="back-button">
-              ← Back to Main Portal
-            </button>
-            <CheckID />
-          </div>
-        )}
+const App: React.FC = () => {
+  return (
+    <Router>
+      <div className="app">
+        <Routes>
+          <Route path="/*" element={<AppContent />} />
+        </Routes>
+
+        <MaintenancePage />
+        {/* <ExportToPDFButton /> */}
+
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          gutter={8}
+          containerClassName=""
+          containerStyle={{
+            zIndex: 9999,
+          }}
+          toastOptions={{
+            duration: 5000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+              fontSize: "16px",
+              padding: "16px 24px",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+            },
+            success: {
+              duration: 5000,
+              style: {
+                background: "#10B981",
+                color: "#fff",
+              },
+              iconTheme: {
+                primary: "#fff",
+                secondary: "#10B981",
+              },
+            },
+            error: {
+              duration: 5000,
+              style: {
+                background: "#EF4444",
+                color: "#fff",
+              },
+              iconTheme: {
+                primary: "#fff",
+                secondary: "#EF4444",
+              },
+            },
+            loading: {
+              duration: Infinity,
+              style: {
+                background: "#3B82F6",
+                color: "#fff",
+              },
+            },
+          }}
+        />
       </div>
-
-      {/* <MaintenancePage /> */}
-      {/* <ExportToPDFButton /> */}
-
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        gutter={8}
-        containerClassName=""
-        containerStyle={{
-          zIndex: 9999,
-        }}
-        toastOptions={{
-          duration: 5000,
-          style: {
-            background: "#363636",
-            color: "#fff",
-            fontSize: "16px",
-            padding: "16px 24px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-          },
-          success: {
-            duration: 5000,
-            style: {
-              background: "#10B981",
-              color: "#fff",
-            },
-            iconTheme: {
-              primary: "#fff",
-              secondary: "#10B981",
-            },
-          },
-          error: {
-            duration: 5000,
-            style: {
-              background: "#EF4444",
-              color: "#fff",
-            },
-            iconTheme: {
-              primary: "#fff",
-              secondary: "#EF4444",
-            },
-          },
-          loading: {
-            duration: Infinity,
-            style: {
-              background: "#3B82F6",
-              color: "#fff",
-            },
-          },
-        }}
-      />
-    </div>
+    </Router>
   );
 };
 

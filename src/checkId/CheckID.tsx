@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import { collection, query, where, getDocs, or } from "firebase/firestore";
+import toast from "react-hot-toast";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import "../Registration.css"; // Reusing the same styles
 import { db } from "../firebaseConfig";
 
@@ -25,41 +25,68 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
     }
 
     setIsChecking(true);
+    setFoundData(null); // Clear previous results
+
     try {
       // Check if input is email format
       const isEmail = identifier.includes("@");
+      const searchValue = identifier.trim();
 
       const q = query(
         collection(db, "registrations"),
         isEmail
-          ? where("email", "==", identifier.trim().toLowerCase())
-          : where("regNumber", "==", identifier.trim().toUpperCase())
+          ? where("email", "==", searchValue.toLowerCase())
+          : where("regNumber", "==", searchValue.toUpperCase())
       );
 
       const querySnapshot = await getDocs(q);
 
       if (querySnapshot.empty) {
-        toast.error("No record found. Please check your input and try again.");
-        setFoundData(null);
+        toast.error(
+          `No record found for "${searchValue}". Please check your input and try again.`
+        );
         return;
       }
 
       const doc = querySnapshot.docs[0];
       const data = doc.data();
-      setFoundData({
-        fullName: data.fullName,
-        regNumber: data.regNumber,
-        email: data.email,
-        studentId: data.studentId,
-      });
 
-      toast.success("Record found!");
-    } catch (error) {
+      const resultData = {
+        fullName: data.fullName || "Not provided",
+        regNumber: data.regNumber || "Not provided",
+        email: data.email || "Not provided",
+        studentId: data.studentId || "Not generated",
+      };
+
+      setFoundData(resultData);
+
+      // Show success toast
+      toast.success(`Student record found for ${resultData.fullName}!`);
+    } catch (error: any) {
       console.error("Error checking ID:", error);
-      toast.error("Error retrieving your information. Please try again.");
-      setFoundData(null);
+
+      let errorMessage = "Error retrieving your information. Please try again.";
+
+      // More specific error messages based on error type
+      if (error.code === "permission-denied") {
+        errorMessage = "Access denied. Please contact administrator.";
+      } else if (error.code === "unavailable") {
+        errorMessage = "Network error. Please check your connection.";
+      } else if (error.message.includes("quota")) {
+        errorMessage =
+          "Service temporarily unavailable. Please try again later.";
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsChecking(false);
+    }
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !isChecking && identifier.trim()) {
+      handleCheckID();
     }
   };
 
@@ -67,7 +94,7 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
     <div className="registration-container">
       <div className="registration-card">
         <div className="registration-header">
-          <h1>NCS 313 Online Test</h1>
+          <h1>NCS 313 / 301 Online Test</h1>
           <h2>Retrieve Your Student ID</h2>
         </div>
 
@@ -75,7 +102,7 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
           <p className="form-description">
             Enter your registration number or email to retrieve your Student ID{" "}
             <br />
-            <strong>TEST STARTS BY 7PM ENDS BY 8:30PM 20TH/DEC/2025</strong>
+            <strong>TEST STARTS FROM 6PM ENDS BY 9:30PM 20TH/DEC/2025</strong>
           </p>
 
           <div className="form-group">
@@ -86,16 +113,32 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
               placeholder="e.g., 12/3456789 or your.email@example.com"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
+              onKeyPress={handleKeyPress}
               disabled={isChecking}
+              autoFocus
             />
+            <small className="input-hint">
+              Enter the exact registration number or email you used during
+              registration
+            </small>
           </div>
 
           <button
             className="primary-button"
             onClick={handleCheckID}
             disabled={isChecking || !identifier.trim()}
+            style={{ opacity: isChecking ? 0.7 : 1 }}
           >
-            {isChecking ? "Searching..." : "Retrieve ID"}
+            {isChecking ? (
+              <>
+                <span className="spinner" style={{ marginRight: "8px" }}>
+                  ⏳
+                </span>
+                Searching...
+              </>
+            ) : (
+              "Retrieve ID"
+            )}
           </button>
 
           {foundData && (
@@ -113,10 +156,23 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
                   <strong>Email:</strong> {foundData.email}
                 </p>
                 <p>
-                  <strong>Your Student ID:</strong> {foundData.studentId}
+                  <strong>Your Student ID:</strong>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#10B98120",
+                      borderRadius: "4px",
+                      fontWeight: "bold",
+                      color: "#10B981",
+                    }}
+                  >
+                    {foundData.studentId}
+                  </span>
                 </p>
                 <div className="id-notice">
-                  <p>
+                  <p style={{ color: "#EF4444" }}>
                     ⚠️ Please save this ID - you'll need it to access the quiz
                   </p>
                 </div>
@@ -129,8 +185,23 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
               className="secondary-button"
               onClick={onBackToRegistration}
               style={{ marginTop: "1rem" }}
+              disabled={isChecking}
             >
               Back to Registration
+            </button>
+          )}
+
+          {/* Clear results button */}
+          {foundData && (
+            <button
+              className="secondary-button"
+              onClick={() => {
+                setFoundData(null);
+                setIdentifier("");
+              }}
+              style={{ marginTop: "0.5rem", marginLeft: "0.5rem" }}
+            >
+              Clear & Search Again
             </button>
           )}
         </div>

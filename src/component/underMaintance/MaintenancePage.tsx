@@ -31,9 +31,21 @@ const MaintenancePage: React.FC = () => {
         >
           Test is starting soon
         </h1> */}
-        <h1 className="maintenance-title">Quiz App Under Maintenance</h1>
+        <h1 className="maintenance-title">Registrations Have Ended</h1>
 
-        <p className="maintenance-description">REGISTRATION STARTS BY 10AM</p>
+        <p className="maintenance-description">
+          <span style={{ textTransform: "uppercase", fontWeight: "bolder" }}>
+            {" "}
+            Test Schedule:
+          </span>
+          <ul>
+            <li>NCS 313: 6:00 PM – 7:30 PM </li>
+            <li>NCS 301: 8:00 PM – 9:30 PM </li>
+          </ul>
+          You will use the same ID you received during registration to take both
+          tests. If you did not copy or save your ID, you can retrieve it from
+          the top-right corner of this page when the test is available.
+        </p>
 
         <div className="maintenance-progress">
           <div className="progress-bar">

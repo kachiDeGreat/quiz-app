@@ -753,7 +753,7 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
       {!isQuizStarted ? (
         <div className={styles.startScreen}>
           <div className={styles.header}>
-            <h1 className={styles.courseTitle}>NCS 313 Online Test</h1>
+            <h1 className={styles.courseTitle}>NCS 313 / 301 Online Test</h1>
             <div className={styles.studentInfo}>
               <div className={styles.infoItem}>
                 <span className={styles.label}>Student:</span>
@@ -819,7 +819,7 @@ const Quiz: React.FC<QuizProps> = ({ userData, onBackToVerification }) => {
           </div>
 
           <div className={styles.quizHeader}>
-            <h2 className={styles.quizTitle}>NCS 313 Online Test</h2>
+            <h2 className={styles.quizTitle}>NCS 313 / 301 Online Test</h2>
             <div className={styles.quizInfo}>
               <div className={`${styles.timer} ${getTimeLeftClass()}`}>
                 <span className={styles.timerLabel}>Time Left:</span>
