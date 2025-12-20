@@ -55,9 +55,9 @@ const MaintenancePage: React.FC = () => {
         </div>
 
         <div className="maintenance-contact">
-          <a href="https://wa.link/7fu1sh" className="contact-link">
+          {/* <a href="https://wa.link/7fu1sh" className="contact-link">
             Contact Support
-          </a>
+          </a> */}
           {/* <a
             href="mailto:onyekachi.godswill.richard@gmail.com"
             className="contact-link"
