@@ -25,13 +25,13 @@ const MaintenancePage: React.FC = () => {
           </svg>
         </div>
 
-        {/* <h1
+        <h1
           className="maintenance-title"
           style={{ textTransform: "uppercase" }}
         >
-          Test is starting soon
-        </h1> */}
-        <h1 className="maintenance-title">Registrations Have Ended</h1>
+          NCS 301 is starting soon
+        </h1>
+        {/* <h1 className="maintenance-title">Registrations Have Ended</h1> */}
 
         <p className="maintenance-description">
           <span style={{ textTransform: "uppercase", fontWeight: "bolder" }}>
@@ -39,8 +39,8 @@ const MaintenancePage: React.FC = () => {
             Test Schedule:
           </span>
           <ul>
-            <li>NCS 313: 6:00 PM – 7:30 PM </li>
-            <li>NCS 301: 8:00 PM – 9:30 PM </li>
+            {/* <li>NCS 313: 6:00 PM – 7:30 PM </li> */}
+            <li>NCS 301: 9:00 PM – 10:30 PM </li>
           </ul>
           You will use the same ID you received during registration to take both
           tests. If you did not copy or save your ID, you can retrieve it from

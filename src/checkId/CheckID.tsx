@@ -94,7 +94,7 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
     <div className="registration-container">
       <div className="registration-card">
         <div className="registration-header">
-          <h1>NCS 313 / 301 Online Test</h1>
+          <h1>NCS 301 Online Test</h1>
           <h2>Retrieve Your Student ID</h2>
         </div>
 
@@ -102,7 +102,7 @@ const CheckID: React.FC<CheckIDProps> = ({ onBackToRegistration }) => {
           <p className="form-description">
             Enter your registration number or email to retrieve your Student ID{" "}
             <br />
-            <strong>TEST STARTS FROM 6PM ENDS BY 9:30PM 20TH/DEC/2025</strong>
+            {/* <strong>TEST STARTS FROM 6PM ENDS BY 9:30PM 20TH/DEC/2025</strong> */}
           </p>
 
           <div className="form-group">

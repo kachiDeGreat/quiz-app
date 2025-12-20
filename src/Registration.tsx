@@ -219,7 +219,7 @@ const Registration: React.FC<RegistrationProps> = ({
     <div className="registration-container">
       <div className="registration-card">
         <div className="registration-header">
-          <h1>NCS 313 / 301 Online Test</h1>
+          <h1>NCS 301 Online Test</h1>
           <h2>Student Registration</h2>
           <div className={`status-badge ${quizActive ? "active" : "inactive"}`}>
             {quizActive ? "Quiz Active" : "Quiz Inactive"}
@@ -256,8 +256,8 @@ const Registration: React.FC<RegistrationProps> = ({
               <div className="info-icon">📅</div>
               <h4>Quiz Not Yet Available</h4>
               <p>
-                The NCS 313 / 301 Online Test is not currently active. We will
-                notify registered students when the quiz becomes available.
+                The NCS 301 Online Test is not currently active. We will notify
+                registered students when the quiz becomes available.
               </p>
             </div>
 

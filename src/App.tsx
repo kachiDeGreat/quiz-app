@@ -60,10 +60,10 @@ const AppContent: React.FC = () => {
   return (
     <>
       {/* Header */}
-      {/* {currentView !== "check-id" && (
+      {currentView !== "check-id" && (
         <div className="app-header">
           <div className="header-content">
-            <h1 className="app-title">NCS 313 / 301 Online Test Portal</h1>
+            <h1 className="app-title">NCS 301 Online Test Portal</h1>
             <div className="header-buttons">
               <Link to="/check-id" className="check-id-button">
                 Check My ID Status
@@ -71,10 +71,10 @@ const AppContent: React.FC = () => {
             </div>
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Main content */}
-      <div className="app-content">
+      {/* <div className="app-content">
         {currentView === "registration" && (
           <Registration
             onRegistrationComplete={handleRegistrationComplete}
@@ -96,7 +96,7 @@ const AppContent: React.FC = () => {
             onBackToVerification={() => setCurrentView("id-verification")}
           />
         )}
-      </div>
+      </div> */}
     </>
   );
 };
@@ -109,7 +109,7 @@ const App: React.FC = () => {
           <Route path="/*" element={<AppContent />} />
         </Routes>
 
-        {/* <MaintenancePage /> */}
+        <MaintenancePage />
         {/* <ExportToPDFButton /> */}
 
         <Toaster
