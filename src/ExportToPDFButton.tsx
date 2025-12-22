@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import toast from "react-hot-toast"; // Changed from react-toastify
+import toast from "react-hot-toast";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -12,9 +12,10 @@ interface Submission {
   studentId: string;
   score: number;
   totalQuestions: number;
-  percentage: number;
+  // percentage: number;
   submittedAt: any;
   isAutoSubmitted: boolean;
+  id: string; // Add Firestore document ID
 }
 
 const ExportToPDFButton: React.FC = () => {
@@ -23,7 +24,6 @@ const ExportToPDFButton: React.FC = () => {
   const handleExportToPDF = async () => {
     setIsLoading(true);
 
-    // Show loading toast
     const loadingToast = toast.loading("Generating PDF report...", {
       duration: Infinity,
     });
@@ -44,27 +44,30 @@ const ExportToPDFButton: React.FC = () => {
         submissions.push({
           fullName: data.fullName,
           regNumber: data.regNumber,
-          email: data.email,
+          email: data.email, // Already available from your code
           studentId: data.studentId,
           score: data.score,
           totalQuestions: data.totalQuestions,
-          percentage,
+          // percentage,
           submittedAt: data.submittedAt?.toDate() || new Date(),
           isAutoSubmitted: data.isAutoSubmitted || false,
+          id: doc.id, // Add the Firestore document ID [citation:8]
         });
       });
 
       // Log the simplified data to console
-      // console.log("NCS 301 Quiz Results Export");
-      // console.log("=".repeat(50));
-      // console.log("Rank\tName\tReg Number\tStudent ID\tScore\tAuto Submitted");
-      // console.log("-".repeat(50));
+      console.log("NCS 301 Quiz Results Export");
+      console.log("=".repeat(50));
+      console.log("Rank\tID\tName\tEmail\tReg Number\tScore\tAuto Submitted");
+      console.log("-".repeat(50));
 
       submissions.forEach((sub, index) => {
         console.log(
-          `${index + 1}\t${sub.fullName}\t${sub.regNumber}\t${sub.studentId}\t${
-            sub.score
-          }/${sub.totalQuestions}\t${sub.isAutoSubmitted ? "Yes" : "No"}`
+          `${index + 1}\t${sub.id}\t${sub.fullName}\t${sub.email}\t${
+            sub.regNumber
+          }\t${sub.score}/${sub.totalQuestions}\t${
+            sub.isAutoSubmitted ? "Yes" : "No"
+          }`
         );
       });
       console.log("=".repeat(50));
@@ -83,25 +86,31 @@ const ExportToPDFButton: React.FC = () => {
       doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
       doc.text(`Total Submissions: ${submissions.length}`, 14, 34);
 
-      // Prepare table data with only the required columns
+      // Prepare table data with ID and Email included
       const tableData = submissions.map((sub, index) => [
         index + 1,
+        sub.id, // Firestore document ID
         sub.fullName,
+        sub.email, // Email column
         sub.regNumber,
         sub.studentId,
         `${sub.score}/${sub.totalQuestions}`,
+        // sub.percentage + "%",
         sub.isAutoSubmitted ? "Yes" : "No",
       ]);
 
-      // Add main results table with only the required columns
+      // Add main results table with ID and Email
       autoTable(doc, {
         head: [
           [
             "Rank",
+            "Doc ID",
             "Name",
+            "Email",
             "Reg Number",
             "Student ID",
             "Score",
+            // "Percentage",
             "Auto-Submitted",
           ],
         ],
@@ -119,12 +128,17 @@ const ExportToPDFButton: React.FC = () => {
         },
         columnStyles: {
           0: { cellWidth: 15, halign: "center" }, // Rank
-          1: { cellWidth: 30 }, // Name
-          2: { cellWidth: 25 }, // Reg Number
-          3: { cellWidth: 20 }, // Student ID
-          4: { cellWidth: 20, halign: "center" }, // Score
-          5: { cellWidth: 20, halign: "center" }, // Auto-submitted
+          1: { cellWidth: 20, fontSize: 6 }, // Doc ID - smaller font for long IDs
+          2: { cellWidth: 25 }, // Name
+          3: { cellWidth: 35 }, // Email - wider column for email addresses
+          4: { cellWidth: 20 }, // Reg Number
+          5: { cellWidth: 20 }, // Student ID
+          6: { cellWidth: 20, halign: "center" }, // Score
+          7: { cellWidth: 20, halign: "center" }, // Percentage
+          8: { cellWidth: 20, halign: "center" }, // Auto-submitted
         },
+        // Ensure table headers appear on every page [citation:10]
+        showHead: "everyPage",
         didDrawPage: (data) => {
           // Footer
           doc.setFontSize(8);
@@ -136,6 +150,9 @@ const ExportToPDFButton: React.FC = () => {
             { align: "center" }
           );
         },
+        // Alternative table width setting [citation:2]
+        tableWidth: "auto",
+        margin: { top: 40, right: 14, bottom: 20, left: 14 },
       });
 
       // Save the PDF
