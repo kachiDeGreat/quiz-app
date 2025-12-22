@@ -77,7 +77,7 @@ const ExportToPDFButton: React.FC = () => {
 
       // Add title and metadata
       doc.setFontSize(18);
-      doc.text("NCS 301 Quiz Results - Detailed Report", 14, 20);
+      doc.text("NCS 313 Quiz Results - Detailed Report", 14, 20);
 
       doc.setFontSize(10);
       doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
