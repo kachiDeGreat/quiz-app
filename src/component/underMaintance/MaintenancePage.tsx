@@ -29,22 +29,12 @@ const MaintenancePage: React.FC = () => {
           className="maintenance-title"
           style={{ textTransform: "uppercase" }}
         >
-          NCS 301 is starting soon
+          BYE GUYS
         </h1>
         {/* <h1 className="maintenance-title">Registrations Have Ended</h1> */}
 
         <p className="maintenance-description">
-          <span style={{ textTransform: "uppercase", fontWeight: "bolder" }}>
-            {" "}
-            Test Schedule:
-          </span>
-          <ul>
-            {/* <li>NCS 313: 6:00 PM – 7:30 PM </li> */}
-            <li>NCS 301: 9:00 PM – 10:30 PM </li>
-          </ul>
-          You will use the same ID you received during registration to take both
-          tests. If you did not copy or save your ID, you can retrieve it from
-          the top-right corner of this page when the test is available.
+          TEST HAS ENDED, SEE YOU GUYS NEXT TIME
         </p>
 
         <div className="maintenance-progress">
@@ -55,9 +45,9 @@ const MaintenancePage: React.FC = () => {
         </div>
 
         <div className="maintenance-contact">
-          {/* <a href="https://wa.link/7fu1sh" className="contact-link">
-            Contact Support
-          </a> */}
+          <a href="https://wa.link/7fu1sh" className="contact-link">
+            Disturb Me
+          </a>
           {/* <a
             href="mailto:onyekachi.godswill.richard@gmail.com"
             className="contact-link"
