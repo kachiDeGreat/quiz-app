@@ -20,8 +20,8 @@ export default function NewYear() {
     "counting"
   );
 
-  // const targetDate = new Date("January 1, 2026 00:00:00").getTime();
-  const [targetDate] = useState(() => new Date().getTime() + 15000);
+  const targetDate = new Date("January 1, 2026 00:00:00").getTime();
+  // const [targetDate] = useState(() => new Date().getTime() + 15000);
 
   useEffect(() => {
     const interval = setInterval(() => {
