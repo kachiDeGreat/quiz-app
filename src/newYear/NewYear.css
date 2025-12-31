@@ -9,7 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
+  overflow: hidden !important;
   font-family: "Anton", sans-serif; /* The Boldest Font */
   user-select: none;
 }
@@ -33,7 +33,7 @@
 }
 
 .ny-hero-text {
-  font-size: 15vw; /* MASSIVE */
+  font-size: 12vw; /* MASSIVE */
   margin: 0;
   letter-spacing: -0.5vw;
   text-transform: uppercase;
@@ -60,7 +60,7 @@
 }
 
 .ny-big-num {
-  font-size: 8vw;
+  font-size: 11vw;
   line-height: 1;
   color: #333; /* Darker grey for non-active numbers */
 }
@@ -89,6 +89,7 @@
   background: #2979ff; /* Flash Blue Background */
   display: flex;
   justify-content: center;
+  overflow: none !important;
   align-items: center;
 }
 
