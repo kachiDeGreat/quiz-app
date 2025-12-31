@@ -20,8 +20,8 @@ export default function NewYear() {
     "counting"
   );
 
-  const targetDate = new Date("January 1, 2026 00:00:00").getTime();
-  // const [targetDate] = useState(() => new Date().getTime() + 15000);
+  // const targetDate = new Date("January 1, 2026 00:00:00").getTime();
+  const [targetDate] = useState(() => new Date().getTime() + 15000);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -57,7 +57,7 @@ export default function NewYear() {
 
   const triggerHypeCelebration = () => {
     // STRICTLY White and Blue confetti
-    const colors = ["#ffffff", "#2979FF"];
+    const colors = ["#ffffff", "#b72a27"];
 
     // No duration limit anymore. It runs forever.
     setInterval(() => {
