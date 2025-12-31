@@ -14,6 +14,7 @@ import IDVerification from "./IDVerification";
 import MaintenancePage from "./component/underMaintance/MaintenancePage";
 import CheckID from "./checkId/CheckID";
 import ExportToPDFButton from "./ExportToPDFButton";
+import NewYear from "./newYear/NewYear";
 
 interface UserData {
   fullName: string;
@@ -45,16 +46,16 @@ const AppContent: React.FC = () => {
   };
 
   // If we're on the check-id route, show CheckID component
-  if (location.pathname === "/check-id") {
-    return (
-      <div className="checkid-wrapper">
-        <Link to="/" className="back-button">
-          ← Back to Main Portal
-        </Link>
-        <CheckID />
-      </div>
-    );
-  }
+  // if (location.pathname === "/check-id") {
+  //   return (
+  //     <div className="checkid-wrapper">
+  //       <Link to="/" className="back-button">
+  //         ← Back to Main Portal
+  //       </Link>
+  //       <CheckID />
+  //     </div>
+  //   );
+  // }
 
   // Otherwise, show the original state-based app
   return (
@@ -109,9 +110,9 @@ const App: React.FC = () => {
           <Route path="/*" element={<AppContent />} />
         </Routes>
 
-        <MaintenancePage />
-        {/* <ExportToPDFButton /> */}
-
+        {/* <MaintenancePage />
+        <ExportToPDFButton /> */}
+        <NewYear />
         <Toaster
           position="top-right"
           reverseOrder={false}

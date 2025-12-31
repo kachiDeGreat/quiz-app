@@ -1,0 +1,187 @@
+@import url("https://fonts.googleapis.com/css2?family=Anton&display=swap");
+
+/* --- LAYOUT --- */
+.ny-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #000; /* Pure Black */
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: "Anton", sans-serif; /* The Boldest Font */
+  user-select: none;
+}
+
+/* --- PHASE 1: THE HERO --- */
+.ny-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.ny-hero-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0.85; /* Tight stacking */
+  margin-bottom: 5vh;
+  transform: skewX(-5deg); /* Slight italic for speed look */
+}
+
+.ny-hero-text {
+  font-size: 15vw; /* MASSIVE */
+  margin: 0;
+  letter-spacing: -0.5vw;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+/* The "Outline" style for style contrast */
+.ny-hero-text.outline {
+  color: transparent;
+  -webkit-text-stroke: 4px #2979ff; /* Electric Blue Outline */
+}
+
+/* THE TIMER */
+.ny-timer-block {
+  display: flex;
+  gap: 3vw;
+  margin-top: 2rem;
+}
+
+.ny-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ny-big-num {
+  font-size: 8vw;
+  line-height: 1;
+  color: #333; /* Darker grey for non-active numbers */
+}
+
+.ny-unit.active .ny-big-num {
+  color: #fff; /* White for seconds */
+}
+
+.ny-tag {
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.5vw;
+  letter-spacing: 0.2vw;
+  background: #2979ff;
+  color: black;
+  padding: 0.2rem 0.5rem;
+  margin-top: 10px;
+  transform: skewX(-10deg);
+}
+
+/* --- PHASE 2: 10 SECOND COUNTDOWN --- */
+.ny-final-stage {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #2979ff; /* Flash Blue Background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ny-blast-count {
+  font-size: 45vw; /* ENORMOUS */
+  color: white;
+  line-height: 1;
+  animation: slam 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* --- PHASE 3: 2026 ARRIVAL --- */
+.ny-party-stage {
+  z-index: 50;
+  text-align: center;
+}
+
+.ny-year-giant {
+  font-size: 35vw;
+  margin: 0;
+  line-height: 0.8;
+  color: white;
+  text-shadow: 10px 10px 0px #2979ff; /* Hard block shadow */
+  animation: float 3s ease-in-out infinite;
+}
+
+.ny-welcome-banner {
+  background: white;
+  color: black;
+  font-size: 4vw;
+  padding: 1rem 4rem;
+  display: inline-block;
+  transform: rotate(-3deg);
+  box-shadow: 10px 10px 0px #2979ff;
+  margin-top: 2rem;
+}
+
+/* --- ANIMATIONS --- */
+
+@keyframes slam {
+  0% {
+    transform: scale(5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.slide-up {
+  animation: slideUpEnter 0.5s ease-out forwards;
+}
+
+@keyframes slideUpEnter {
+  from {
+    transform: translateY(100vh);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px);
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .ny-hero-text {
+    font-size: 18vw;
+    -webkit-text-stroke: 2px #2979ff;
+  }
+  .ny-tag {
+    font-size: 3vw;
+  }
+  .ny-big-num {
+    font-size: 12vw;
+  }
+  .ny-timer-block {
+    gap: 1rem;
+  }
+  .ny-welcome-banner {
+    font-size: 7vw;
+    padding: 0.5rem 2rem;
+  }
+}
