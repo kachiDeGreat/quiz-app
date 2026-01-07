@@ -15,6 +15,7 @@ import MaintenancePage from "./component/underMaintance/MaintenancePage";
 import CheckID from "./checkId/CheckID";
 import ExportToPDFButton from "./ExportToPDFButton";
 import NewYear from "./newYear/NewYear";
+import WeddingBulletin from "./weddingBulletin/WeddingBulletin";
 
 interface UserData {
   fullName: string;
@@ -112,7 +113,8 @@ const App: React.FC = () => {
 
         {/* <MaintenancePage />
         <ExportToPDFButton /> */}
-        <NewYear />
+        {/* <NewYear /> */}
+        <WeddingBulletin />
         <Toaster
           position="top-right"
           reverseOrder={false}
